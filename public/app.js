@@ -444,7 +444,6 @@ async function loadDashboard() {
         // Update dashboard stats
         document.getElementById('total-members-dash').textContent = stats.totalMembers;
         document.getElementById('present-today-dash').textContent = stats.todayCheckins;
-        document.getElementById('absent-today-dash').textContent = stats.totalMembers - stats.todayCheckins;
         document.getElementById('checked-out-dash').textContent = stats.currentlyInGym;
         
         // Display today's attendance
