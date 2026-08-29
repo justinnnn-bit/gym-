@@ -88,7 +88,7 @@ async function loginAdmin(username, password) {
         const adminEmail = username.includes('@') ? username : `${username}@fitzone.com`;
         
         // Check if admin exists in accounts table
-        const { data: account, error } = await supabase
+        const { data: account, error } = await supabaseInstance
             .from('accounts')
             .select('*')
             .eq('email', adminEmail)
