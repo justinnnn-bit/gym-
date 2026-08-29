@@ -115,6 +115,13 @@ function initializeNavigation() {
 
 // Generate QR Codes
 function generateQRCodes() {
+    // Check if QRCode library is loaded
+    if (typeof QRCode === 'undefined') {
+        console.error('QRCode library not loaded yet. Retrying...');
+        setTimeout(generateQRCodes, 100);
+        return;
+    }
+    
     // Dashboard QR codes
     QRCode.toCanvas(CHECKIN_QR_TEXT, { width: 250, margin: 2 }, (error, canvas) => {
         if (!error) {
