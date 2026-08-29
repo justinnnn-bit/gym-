@@ -114,23 +114,14 @@ function initializeNavigation() {
 }
 
 // Generate QR Codes
-let qrCodeRetries = 0;
-const MAX_RETRIES = 50; // 5 seconds max
-
 function generateQRCodes() {
     // Check if QRCode library is loaded
-    if (typeof QRCode === 'undefined') {
-        qrCodeRetries++;
-        if (qrCodeRetries < MAX_RETRIES) {
-            console.warn('QRCode library not loaded yet. Retrying... (' + qrCodeRetries + '/' + MAX_RETRIES + ')');
-            setTimeout(generateQRCodes, 100);
-        } else {
-            console.error('QRCode library failed to load after ' + MAX_RETRIES + ' attempts.');
-        }
+    if (typeof QRCode === 'undefined' || !QRCode.toCanvas) {
+        console.error('QRCode library not available');
         return;
     }
     
-    console.log('QRCode library loaded successfully!');
+    console.log('Generating QR codes...');
     
     // Dashboard QR codes
     QRCode.toCanvas(CHECKIN_QR_TEXT, { width: 250, margin: 2 }, (error, canvas) => {
