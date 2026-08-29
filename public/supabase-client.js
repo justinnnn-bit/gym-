@@ -386,3 +386,89 @@ window.supabaseClient = {
     rejectAccount,
     getDashboardStats
 };
+
+
+// ========== ADMIN MANAGEMENT ==========
+
+async function promoteToAdmin(email) {
+    try {
+        // Update the account to admin role
+        const { data, error } = await supabase
+            .from('accounts')
+            .update({ role: 'admin' })
+            .eq('email', email)
+            .select();
+
+        if (error) throw error;
+        
+        if (data.length === 0) {
+            return { success: false, error: 'Account not found. Make sure the user has registered first.' };
+        }
+
+        return { success: true, message: `${email} has been promoted to admin!` };
+    } catch (error) {
+        console.error('Error promoting to admin:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+async function demoteFromAdmin(email) {
+    try {
+        // Update the account to member role
+        const { data, error } = await supabase
+            .from('accounts')
+            .update({ role: 'member' })
+            .eq('email', email)
+            .select();
+
+        if (error) throw error;
+        
+        if (data.length === 0) {
+            return { success: false, error: 'Account not found.' };
+        }
+
+        return { success: true, message: `${email} has been demoted to member.` };
+    } catch (error) {
+        console.error('Error demoting from admin:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+async function createAdminAccount(email, password, name = 'Admin') {
+    try {
+        // 1. Create auth user in Supabase
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                data: { name: name }
+            }
+        });
+
+        if (authError) throw authError;
+
+        // 2. Create account with admin role
+        const { data, error } = await supabase
+            .from('accounts')
+            .insert([{
+                email: email,
+                password_hash: 'handled_by_supabase',
+                role: 'admin',
+                approved: true,
+                approved_at: new Date().toISOString()
+            }])
+            .select();
+
+        if (error) throw error;
+
+        return { success: true, message: `Admin account created for ${email}` };
+    } catch (error) {
+        console.error('Error creating admin account:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// Add to exported functions
+window.supabaseClient.promoteToAdmin = promoteToAdmin;
+window.supabaseClient.demoteFromAdmin = demoteFromAdmin;
+window.supabaseClient.createAdminAccount = createAdminAccount;
