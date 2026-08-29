@@ -245,25 +245,53 @@ async function approveAccount(accountId, membershipType) {
 
         if (!pendingAccount) throw new Error('Account not found');
 
-        // Create member
-        const {data: newMember, error: memberError } = await supabaseInstance
+        // Check if inactive member with this email exists
+        const { data: existingMember } = await supabaseInstance
             .from('members')
-            .insert([{
-                name: pendingAccount.name,
-                email: pendingAccount.email,
-                phone: pendingAccount.phone,
-                membership_type: membershipType || 'Basic'
-            }])
-            .select()
+            .select('*')
+            .eq('email', pendingAccount.email)
             .single();
 
-        if (memberError) throw memberError;
+        let member;
+
+        if (existingMember) {
+            // Reactivate existing member
+            const { data: reactivated, error: updateError } = await supabaseInstance
+                .from('members')
+                .update({
+                    active: true,
+                    name: pendingAccount.name,
+                    phone: pendingAccount.phone,
+                    membership_type: membershipType || 'Basic'
+                })
+                .eq('id', existingMember.id)
+                .select()
+                .single();
+
+            if (updateError) throw updateError;
+            member = reactivated;
+        } else {
+            // Create new member
+            const { data: newMember, error: memberError } = await supabaseInstance
+                .from('members')
+                .insert([{
+                    name: pendingAccount.name,
+                    email: pendingAccount.email,
+                    phone: pendingAccount.phone,
+                    membership_type: membershipType || 'Basic'
+                }])
+                .select()
+                .single();
+
+            if (memberError) throw memberError;
+            member = newMember;
+        }
 
         // Create approved account
-        const {error: accountError } = await supabaseInstance
+        const { error: accountError } = await supabaseInstance
             .from('accounts')
             .insert([{
-                member_id: newMember.id,
+                member_id: member.id,
                 email: pendingAccount.email,
                 password_hash: pendingAccount.password_hash,
                 role: 'member',
@@ -279,7 +307,7 @@ async function approveAccount(accountId, membershipType) {
             .delete()
             .eq('id', accountId);
 
-        return { success: true, member: newMember };
+        return { success: true, member: member };
     } catch (error) {
         console.error('Error approving account:', error);
         return { success: false, error: error.message };
