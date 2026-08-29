@@ -186,3 +186,56 @@
     <script src="login.js"></script>
 </body>
 </html>
+
+
+    <!-- Custom Error Modal -->
+    <div id="custom-error-modal" class="modal">
+        <div class="modal-content custom-modal error">
+            <div class="error-icon-large">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <h2>Error</h2>
+            <p id="error-modal-message"></p>
+            <button class="btn-primary" onclick="closeErrorModal()">OK</button>
+        </div>
+    </div>
+
+    <style>
+        .custom-modal.error {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .error-icon-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            animation: scaleIn 0.4s ease-out;
+        }
+
+        .error-icon-large i {
+            font-size: 40px;
+            color: white;
+        }
+
+        .custom-modal.error h2 {
+            margin: 0 0 16px;
+            color: #1e293b;
+        }
+
+        .custom-modal.error p {
+            color: #64748b;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+    </style>

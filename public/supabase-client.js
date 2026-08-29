@@ -34,23 +34,20 @@ async function registerMember(name, email, phone, password) {
 
 async function loginMember(email, password) {
     try {
-        const { data, error } = await supabaseInstance.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
-
-        if (error) throw error;
-
-        // Check if account is approved
-        const {data: account, error: accountError } = await supabaseInstance
+        // Simplified login - no Supabase Auth needed
+        const { data: account, error } = await supabaseInstance
             .from('accounts')
             .select('*, members(*)')
             .eq('email', email)
+            .eq('approved', true)
             .single();
 
-        if (accountError || !account.approved) {
-            await supabaseInstance.auth.signOut();
-            return { success: false, error: 'Account pending approval' };
+        if (error || !account) {
+            return { success: false, error: 'Invalid credentials or account not approved' };
+        }
+
+        if (!account.members) {
+            return { success: false, error: 'Member profile not found' };
         }
 
         return {
@@ -276,10 +273,10 @@ async function approveAccount(accountId, membershipType) {
 
         if (accountError) throw accountError;
 
-        // Update pending account status
+        // DELETE from pending_accounts (not just update) to allow re-registration
         await supabaseInstance
             .from('pending_accounts')
-            .update({ status: 'approved' })
+            .delete()
             .eq('id', accountId);
 
         return { success: true, member: newMember };
@@ -291,9 +288,10 @@ async function approveAccount(accountId, membershipType) {
 
 async function rejectAccount(accountId) {
     try {
+        // DELETE from pending_accounts to allow re-registration
         const { error } = await supabaseInstance
             .from('pending_accounts')
-            .update({ status: 'rejected' })
+            .delete()
             .eq('id', accountId);
 
         if (error) throw error;
