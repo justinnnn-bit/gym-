@@ -1,8 +1,8 @@
 // Global variables
 let html5QrCode;
 let currentMembers = [];
-const CHECKIN_QR_TEXT = "GYM_CHECKIN_2024";
-const CHECKOUT_QR_TEXT = "GYM_CHECKOUT_2024";
+const CHECKIN_QR_TEXT = "https://darkknightfitness.vercel.app/scan?action=checkin";
+const CHECKOUT_QR_TEXT = "https://darkknightfitness.vercel.app/scan?action=checkout";
 let currentAction = null;
 let scannerActive = false;
 
@@ -288,14 +288,19 @@ function stopMainQRScanner() {
 }
 
 function onMainScanSuccess(decodedText) {
-    if (decodedText === CHECKIN_QR_TEXT) {
-        currentAction = 'checkin';
+    // Handle both URL-based and text-based QR codes
+    let action = null;
+    
+    if (decodedText.includes('action=checkin') || decodedText === CHECKIN_QR_TEXT) {
+        action = 'checkin';
+    } else if (decodedText.includes('action=checkout') || decodedText === CHECKOUT_QR_TEXT) {
+        action = 'checkout';
+    }
+    
+    if (action) {
+        currentAction = action;
         html5QrCode.pause();
-        showMemberSelectionModal('Check-In');
-    } else if (decodedText === CHECKOUT_QR_TEXT) {
-        currentAction = 'checkout';
-        html5QrCode.pause();
-        showMemberSelectionModal('Check-Out');
+        showMemberSelectionModal(action === 'checkin' ? 'Check-In' : 'Check-Out');
     } else {
         // Invalid QR code - show brief alert
         const reader = document.getElementById('reader');

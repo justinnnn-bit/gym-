@@ -52,8 +52,19 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
             localStorage.setItem('userSession', JSON.stringify(result.user));
             localStorage.setItem('userRole', 'member');
             
-            // Redirect to main app
-            window.location.href = '/index.html';
+            // Check if there's a pending QR scan action
+            const pendingAction = localStorage.getItem('pendingAction');
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectTo = urlParams.get('redirect');
+            const action = urlParams.get('action');
+            
+            if (pendingAction || (redirectTo === 'scan' && action)) {
+                localStorage.removeItem('pendingAction');
+                window.location.href = `/scan.html?action=${action || pendingAction}`;
+            } else {
+                // Redirect to main app
+                window.location.href = '/index.html';
+            }
         } else {
             alert(result.error || 'Login failed. Please check your credentials.');
         }
