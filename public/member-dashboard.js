@@ -157,6 +157,55 @@ function updateStats() {
     document.getElementById('total-present').textContent = presentDays;
     document.getElementById('total-absent').textContent = absentDays;
     document.getElementById('attendance-rate').textContent = attendanceRate + '%';
+    
+    // Update recent activity
+    updateRecentActivity();
+}
+
+function updateRecentActivity() {
+    const activityList = document.getElementById('recent-activity');
+    
+    // Get last 5 attendance records
+    const recentRecords = memberAttendance
+        .sort((a, b) => new Date(b.check_time) - new Date(a.check_time))
+        .slice(0, 5);
+    
+    if (recentRecords.length === 0) {
+        activityList.innerHTML = `
+            <div class="no-activity">
+                <i class="fas fa-calendar-times"></i>
+                <p>No recent activity</p>
+            </div>
+        `;
+        return;
+    }
+    
+    activityList.innerHTML = recentRecords.map(record => {
+        const date = new Date(record.check_time);
+        const actionClass = record.action === 'checkin' ? '' : 'checkout';
+        const actionIcon = record.action === 'checkin' ? 'sign-in-alt' : 'sign-out-alt';
+        const actionLabel = record.action === 'checkin' ? 'Check-In' : 'Check-Out';
+        
+        const timeStr = date.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+        
+        return `
+            <div class="activity-item ${actionClass}">
+                <div class="activity-icon">
+                    <i class="fas fa-${actionIcon}"></i>
+                </div>
+                <div class="activity-details">
+                    <div class="activity-type">${actionLabel}</div>
+                    <div class="activity-time">${timeStr}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 function previousMonth() {
