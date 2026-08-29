@@ -1814,3 +1814,121 @@ body {
         transform: scale(1);
     }
 }
+
+
+/* ========================================
+   MEMBERS TABLE STYLES
+======================================== */
+
+.members-table-container {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.members-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.members-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.members-table th {
+    padding: 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.members-table tbody tr {
+    border-bottom: 1px solid #e2e8f0;
+    transition: background-color 0.2s;
+}
+
+.members-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.members-table td {
+    padding: 16px;
+    vertical-align: middle;
+}
+
+.contact-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.contact-cell i {
+    margin-right: 6px;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+.membership-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.membership-badge i {
+    font-size: 12px;
+}
+
+.btn-table-delete {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ef4444;
+    color: white;
+}
+
+.btn-table-delete:hover {
+    background: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.members-summary {
+    padding: 16px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Responsive members table */
+@media (max-width: 768px) {
+    .members-table-container {
+        overflow-x: auto;
+    }
+    
+    .members-table {
+        min-width: 800px;
+    }
+}

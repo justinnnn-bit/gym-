@@ -453,3 +453,22 @@ window.supabaseClient.createAdminAccount = createAdminAccount;
 
 
 
+
+
+async function deleteMember(memberId) {
+    try {
+        const { error } = await supabaseInstance
+            .from('members')
+            .update({ active: false })
+            .eq('id', memberId);
+
+        if (error) throw error;
+        return { success: true };
+    } catch (error) {
+        console.error('Error deleting member:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// Add to exported functions
+window.supabaseClient.deleteMember = deleteMember;

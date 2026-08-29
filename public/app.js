@@ -507,19 +507,72 @@ function displayMembers() {
     const container = document.getElementById('members-list');
     
     if (!currentMembers || currentMembers.length === 0) {
-        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #94A3B8;">No members yet</div>';
+        container.innerHTML = '<div style="text-align: center; padding: 60px; color: #94A3B8;"><i class="fas fa-users" style="font-size: 4em; margin-bottom: 20px; display: block;"></i><h3>No Members Yet</h3><p>Add your first member to get started</p></div>';
         return;
     }
     
-    container.innerHTML = currentMembers.map(member => `
-        <div class="member-card">
-            <h4>${member.name}</h4>
-            <p><i class="fas fa-envelope"></i> ${member.email}</p>
-            <p><i class="fas fa-phone"></i> ${member.phone}</p>
-            <p><i class="fas fa-crown"></i> ${member.membershipType}</p>
-            <p><i class="fas fa-calendar"></i> Joined: ${new Date(member.joinDate).toLocaleDateString()}</p>
+    container.innerHTML = `
+        <div class="members-table-container">
+            <table class="members-table">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Contact</th>
+                        <th>Membership</th>
+                        <th>Join Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${currentMembers.map(member => {
+                        const initial = member.name.charAt(0).toUpperCase();
+                        const joinDate = member.join_date ? new Date(member.join_date).toLocaleDateString() : 'N/A';
+                        const membershipColor = {
+                            'Basic': '#3b82f6',
+                            'Premium': '#8b5cf6',
+                            'VIP': '#f59e0b'
+                        }[member.membership_type] || '#64748b';
+                        
+                        return `
+                            <tr class="member-row">
+                                <td>
+                                    <div class="member-cell">
+                                        <div class="member-avatar-small">${initial}</div>
+                                        <span class="member-name">${member.name}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="contact-cell">
+                                        <span class="email-text"><i class="fas fa-envelope"></i> ${member.email}</span>
+                                        <span class="phone-text"><i class="fas fa-phone"></i> ${member.phone}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="membership-badge" style="background: ${membershipColor}">
+                                        ${member.membership_type === 'VIP' ? '<i class="fas fa-crown"></i>' : '<i class="fas fa-star"></i>'}
+                                        ${member.membership_type}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="date-text">${joinDate}</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-table-delete" onclick="confirmDeleteMember('${member.id}', '${member.name}')" title="Delete Member">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
         </div>
-    `).join('');
+        <div class="members-summary">
+            <span>${currentMembers.length} total member${currentMembers.length !== 1 ? 's' : ''}</span>
+        </div>
+    `;
 }
 
 // Add Member
@@ -557,6 +610,28 @@ async function handleAddMember(e) {
 const addMemberForm = document.getElementById('add-member-form');
 if (addMemberForm) {
     addMemberForm.addEventListener('submit', handleAddMember);
+}
+
+// Delete Member
+function confirmDeleteMember(memberId, memberName) {
+    showConfirmModal(
+        `Are you sure you want to delete ${memberName}? This action cannot be undone.`,
+        async () => {
+            try {
+                const result = await window.supabaseClient.deleteMember(memberId);
+                
+                if (result.success) {
+                    showSuccessModal(`${memberName} has been removed from the system.`);
+                    loadMembers();
+                    loadDashboard();
+                } else {
+                    alert(result.error || 'Failed to delete member');
+                }
+            } catch (error) {
+                alert('Error deleting member');
+            }
+        }
+    );
 }
 
 // Load Reports
