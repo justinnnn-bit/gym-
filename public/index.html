@@ -402,35 +402,33 @@
     </div>
 
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <script>
-        // Create QRCode.toCanvas compatibility wrapper since davidshimjs uses different API
-        if (typeof QRCode !== 'undefined' && !QRCode.toCanvas) {
-            const OriginalQRCode = QRCode;
-            window.QRCode = {
-                toCanvas: function(text, options, callback) {
-                    try {
-                        const canvas = document.createElement('canvas');
-                        const size = options.width || 256;
-                        canvas.width = size;
-                        canvas.height = size;
-                        
-                        const qr = new OriginalQRCode(canvas, {
-                            text: text,
-                            width: size,
-                            height: size,
-                            colorDark: "#000000",
-                            colorLight: "#ffffff",
-                            correctLevel: OriginalQRCode.CorrectLevel.H
-                        });
-                        
-                        callback(null, canvas);
-                    } catch (error) {
-                        callback(error, null);
-                    }
+        // Create QRCode.toCanvas compatibility wrapper using QRious
+        window.QRCode = {
+            toCanvas: function(text, options, callback) {
+                try {
+                    const canvas = document.createElement('canvas');
+                    const size = options.width || 256;
+                    
+                    const qr = new QRious({
+                        element: canvas,
+                        value: text,
+                        size: size,
+                        level: 'H',
+                        background: '#ffffff',
+                        foreground: '#000000'
+                    });
+                    
+                    callback(null, canvas);
+                } catch (error) {
+                    console.error('QR generation error:', error);
+                    callback(error, null);
                 }
-            };
-        }
+            }
+        };
+        
+        console.log('QRCode wrapper created with QRious');
     </script>
     <script src="app.js"></script>
 </body>
