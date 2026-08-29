@@ -1,9 +1,9 @@
 // Global variables
 let html5QrCode;
 let currentMembers = [];
-// QR codes only work at gym location - members must scan physically at gym
-const CHECKIN_QR_TEXT = "GYM_CHECKIN_DARKKNIGHT_2024_ENTRANCE";
-const CHECKOUT_QR_TEXT = "GYM_CHECKOUT_DARKKNIGHT_2024_EXIT";
+// QR codes are URLs that auto-record attendance for logged-in member
+const CHECKIN_QR_TEXT = "https://darkknightfitness.vercel.app/quick-scan?action=checkin";
+const CHECKOUT_QR_TEXT = "https://darkknightfitness.vercel.app/quick-scan?action=checkout";
 let currentAction = null;
 let scannerActive = false;
 
@@ -304,11 +304,15 @@ function stopMainQRScanner() {
 }
 
 function onMainScanSuccess(decodedText) {
-    if (decodedText === CHECKIN_QR_TEXT) {
+    // Support both URL format and plain text for admin scanner
+    const isCheckin = decodedText.includes('action=checkin') || decodedText === CHECKIN_QR_TEXT;
+    const isCheckout = decodedText.includes('action=checkout') || decodedText === CHECKOUT_QR_TEXT;
+    
+    if (isCheckin) {
         currentAction = 'checkin';
         html5QrCode.pause();
         showMemberSelectionModal('Check-In');
-    } else if (decodedText === CHECKOUT_QR_TEXT) {
+    } else if (isCheckout) {
         currentAction = 'checkout';
         html5QrCode.pause();
         showMemberSelectionModal('Check-Out');

@@ -52,8 +52,15 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
             localStorage.setItem('userSession', JSON.stringify(result.user));
             localStorage.setItem('userRole', 'member');
             
-            // Members see their attendance calendar, not admin dashboard
-            window.location.href = '/member-dashboard.html';
+            // Check if there's a pending scan action (from QR code)
+            const pendingAction = localStorage.getItem('pendingAction');
+            if (pendingAction) {
+                localStorage.removeItem('pendingAction');
+                window.location.href = `/quick-scan.html?action=${pendingAction}`;
+            } else {
+                // Members see their attendance calendar
+                window.location.href = '/member-dashboard.html';
+            }
         } else {
             alert(result.error || 'Login failed. Please check your credentials.');
         }

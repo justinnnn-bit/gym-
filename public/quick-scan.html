@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#4F46E5">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>DarkNight Fitness - Quick Scan</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-client.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .scan-container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 8px solid #f3f4f6;
+            border-top: 8px solid #4F46E5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5em;
+            margin: 0 auto 25px;
+            animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+        }
+        
+        .error-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5em;
+            margin: 0 auto 25px;
+            animation: scaleIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);
+        }
+        
+        @keyframes scaleIn {
+            from { transform: scale(0) rotate(-180deg); }
+            to { transform: scale(1) rotate(0deg); }
+        }
+        
+        h1 {
+            font-size: 2em;
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+        
+        p {
+            color: #64748b;
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .action-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border-radius: 25px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .action-badge.checkin {
+            background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
+            color: #065F46;
+            border: 2px solid #10B981;
+        }
+        
+        .action-badge.checkout {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            color: #92400E;
+            border: 2px solid #F59E0B;
+        }
+        
+        .btn-primary {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #4F46E5 0%, #4338CA 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(79, 70, 229, 0.4);
+        }
+        
+        .btn-secondary {
+            padding: 14px 28px;
+            background: white;
+            color: #4F46E5;
+            border: 2px solid #4F46E5;
+            border-radius: 12px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            margin-left: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: #F8FAFC;
+            transform: translateY(-2px);
+        }
+        
+        .time-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #F8FAFC;
+            border-radius: 12px;
+            color: #64748b;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .member-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+            border-radius: 12px;
+            border: 2px solid #CBD5E1;
+        }
+        
+        .member-name {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        
+        .member-email {
+            color: #64748b;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 480px) {
+            .scan-container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 1.6em;
+            }
+            
+            .loading-spinner,
+            .success-icon,
+            .error-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 2.5em;
+            }
+            
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                justify-content: center;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="scan-container" id="scanContainer">
+        <div class="loading-spinner"></div>
+        <h1>Processing...</h1>
+        <p>Please wait while we record your attendance.</p>
+    </div>
+
+    <script>
+        // Get action from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const action = urlParams.get('action'); // 'checkin' or 'checkout'
+        
+        async function processQuickScan() {
+            const container = document.getElementById('scanContainer');
+            
+            // Check if action is valid
+            if (!action || (action !== 'checkin' && action !== 'checkout')) {
+                showError('Invalid QR Code', 'This QR code is not recognized. Please scan the correct code at the gym.');
+                return;
+            }
+            
+            // Check if user is logged in
+            const userSession = localStorage.getItem('userSession');
+            const userRole = localStorage.getItem('userRole');
+            
+            if (!userSession || userRole !== 'member') {
+                // Not logged in - redirect to login with action stored
+                localStorage.setItem('pendingAction', action);
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(userSession);
+                
+                // Record attendance automatically for this logged-in member
+                const result = await window.supabaseClient.recordAttendance(user.id, action);
+                
+                if (result.success) {
+                    showSuccess(action, user, result.member);
+                } else {
+                    showError('Error', result.error || 'Could not record attendance. Please try again or contact gym staff.');
+                }
+            } catch (error) {
+                console.error('Attendance error:', error);
+                showError('Error', 'An unexpected error occurred. Please try again or contact gym staff.');
+            }
+        }
+        
+        function showSuccess(action, user, memberData) {
+            const container = document.getElementById('scanContainer');
+            const actionLabel = action === 'checkin' ? 'Check-In' : 'Check-Out';
+            const actionClass = action === 'checkin' ? 'checkin' : 'checkout';
+            const actionIcon = action === 'checkin' ? 'sign-in-alt' : 'sign-out-alt';
+            const now = new Date();
+            
+            container.innerHTML = `
+                <div class="success-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="action-badge ${actionClass}">
+                    <i class="fas fa-${actionIcon}"></i>
+                    ${actionLabel} Successful!
+                </div>
+                <h1>Welcome, ${user.name}! 👋</h1>
+                <div class="member-info">
+                    <div class="member-name">${user.name}</div>
+                    <div class="member-email">${user.email}</div>
+                </div>
+                <p>Your ${action === 'checkin' ? 'check-in' : 'check-out'} has been recorded successfully. Have a great workout!</p>
+                <div class="time-info">
+                    <i class="far fa-clock"></i>
+                    <span>${now.toLocaleString('en-US', { 
+                        weekday: 'short', 
+                        month: 'short', 
+                        day: 'numeric', 
+                        hour: 'numeric', 
+                        minute: '2-digit', 
+                        hour12: true 
+                    })}</span>
+                </div>
+                <br><br>
+                <a href="/member-dashboard.html" class="btn-primary">
+                    <i class="fas fa-calendar-check"></i>
+                    View My Attendance
+                </a>
+            `;
+        }
+        
+        function showError(title, message) {
+            const container = document.getElementById('scanContainer');
+            container.innerHTML = `
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <h1>${title}</h1>
+                <p>${message}</p>
+                <a href="/login.html" class="btn-primary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login to Continue
+                </a>
+                <a href="/member-dashboard.html" class="btn-secondary">
+                    <i class="fas fa-home"></i>
+                    Go to Dashboard
+                </a>
+            `;
+        }
+        
+        // Process attendance when page loads
+        window.addEventListener('DOMContentLoaded', processQuickScan);
+    </script>
+</body>
+</html>
