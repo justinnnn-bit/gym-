@@ -4,15 +4,15 @@
 const SUPABASE_URL = 'https://mmtwgjrmiaedwlpsynl.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tdHdnanJtaWFlZHdscHN5bG5sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5OTk5OTIsImV4cCI6MjEwMzU3NTk5Mn0.nwAf2LtgxgQUU22g8e5s-0Wwrko1KgLJkd7Ll0F8X-M';
 
-// Initialize Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize Supabase client (use window.supabase from the CDN)
+const supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ========== AUTHENTICATION ==========
 
 async function registerMember(name, email, phone, password) {
     try {
         // 1. Create auth user in Supabase
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        const { data: authData, error: authError } = await supabaseInstance.auth.signUp({
             email: email,
             password: password,
             options: {
@@ -48,7 +48,7 @@ async function registerMember(name, email, phone, password) {
 
 async function loginMember(email, password) {
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabaseInstance.auth.signInWithPassword({
             email: email,
             password: password
         });
@@ -63,7 +63,7 @@ async function loginMember(email, password) {
             .single();
 
         if (accountError || !account.approved) {
-            await supabase.auth.signOut();
+            await supabaseInstance.auth.signOut();
             return { success: false, error: 'Account pending approval' };
         }
 
@@ -122,7 +122,7 @@ async function loginAdmin(username, password) {
 }
 
 async function logout() {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabaseInstance.auth.signOut();
     if (error) console.error('Logout error:', error);
 }
 
@@ -438,7 +438,7 @@ async function demoteFromAdmin(email) {
 async function createAdminAccount(email, password, name = 'Admin') {
     try {
         // 1. Create auth user in Supabase
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        const { data: authData, error: authError } = await supabaseInstance.auth.signUp({
             email: email,
             password: password,
             options: {
@@ -473,3 +473,4 @@ async function createAdminAccount(email, password, name = 'Admin') {
 window.supabaseClient.promoteToAdmin = promoteToAdmin;
 window.supabaseClient.demoteFromAdmin = demoteFromAdmin;
 window.supabaseClient.createAdminAccount = createAdminAccount;
+
