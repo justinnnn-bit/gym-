@@ -134,7 +134,7 @@ function updateStats() {
     const currentMonth = today.getMonth();
     const currentYear = today.getFullYear();
     
-    // Count present and absent days for current month (excluding future days and Thursdays)
+    // Count present days for current month (excluding future days and Thursdays)
     let presentDays = 0;
     let totalWorkingDays = 0;
     
@@ -160,13 +160,22 @@ function updateStats() {
         if (hasAttendance) presentDays++;
     }
     
-    const absentDays = totalWorkingDays - presentDays;
+    // Calculate total all-time visits (unique check-in days)
+    const uniqueCheckInDates = new Set();
+    memberAttendance.forEach(record => {
+        if (record.action === 'checkin') {
+            const dateStr = new Date(record.check_time).toISOString().split('T')[0];
+            uniqueCheckInDates.add(dateStr);
+        }
+    });
+    const totalVisits = uniqueCheckInDates.size;
+    
     const attendanceRate = totalWorkingDays > 0 
         ? Math.round((presentDays / totalWorkingDays) * 100) 
         : 0;
     
     document.getElementById('total-present').textContent = presentDays;
-    document.getElementById('total-absent').textContent = absentDays;
+    document.getElementById('total-visits').textContent = totalVisits;
     document.getElementById('attendance-rate').textContent = attendanceRate + '%';
     
     // Update recent activity
