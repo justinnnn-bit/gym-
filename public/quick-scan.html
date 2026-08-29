@@ -251,15 +251,21 @@
     </div>
 
     <script>
+        console.log('Quick scan page loaded');
+        
         // Get action from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
         const action = urlParams.get('action'); // 'checkin' or 'checkout'
         
+        console.log('Action from URL:', action);
+        
         async function processQuickScan() {
+            console.log('processQuickScan started');
             const container = document.getElementById('scanContainer');
             
             // Check if action is valid
             if (!action || (action !== 'checkin' && action !== 'checkout')) {
+                console.log('Invalid action');
                 showError('Invalid QR Code', 'This QR code is not recognized. Please scan the correct code at the gym.');
                 return;
             }
@@ -268,8 +274,12 @@
             const userSession = localStorage.getItem('userSession');
             const userRole = localStorage.getItem('userRole');
             
+            console.log('User session:', userSession ? 'exists' : 'not found');
+            console.log('User role:', userRole);
+            
             if (!userSession || userRole !== 'member') {
                 // Not logged in - redirect to login with action stored
+                console.log('Not logged in, redirecting...');
                 localStorage.setItem('pendingAction', action);
                 window.location.href = '/login.html';
                 return;
@@ -277,18 +287,30 @@
             
             try {
                 const user = JSON.parse(userSession);
+                console.log('Processing attendance for user:', user.name, 'ID:', user.id);
+                
+                // Check if supabaseClient is available
+                if (!window.supabaseClient || !window.supabaseClient.recordAttendance) {
+                    console.error('supabaseClient not available!');
+                    showError('Error', 'System not ready. Please try again in a moment.');
+                    return;
+                }
                 
                 // Record attendance automatically for this logged-in member
+                console.log('Calling recordAttendance...');
                 const result = await window.supabaseClient.recordAttendance(user.id, action);
+                console.log('recordAttendance result:', result);
                 
                 if (result.success) {
+                    console.log('Attendance recorded successfully');
                     showSuccess(action, user, result.member);
                 } else {
+                    console.error('Attendance recording failed:', result.error);
                     showError('Error', result.error || 'Could not record attendance. Please try again or contact gym staff.');
                 }
             } catch (error) {
                 console.error('Attendance error:', error);
-                showError('Error', 'An unexpected error occurred. Please try again or contact gym staff.');
+                showError('Error', 'An unexpected error occurred: ' + error.message);
             }
         }
         
