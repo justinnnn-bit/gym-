@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitZone Gym - Login</title>
+    <link rel="stylesheet" href="login-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-left">
+            <div class="logo-section">
+                <i class="fas fa-dumbbell"></i>
+                <h1>FITZONE GYM</h1>
+                <p>Your Fitness Journey Starts Here</p>
+            </div>
+        </div>
+
+        <div class="login-right">
+            <!-- Login Form -->
+            <div id="login-form-container" class="form-container active">
+                <h2>Welcome Back!</h2>
+                <p class="subtitle">Sign in to mark your attendance</p>
+
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="login-email" placeholder="your.email@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="login-password" placeholder="Enter your password" required>
+                            <i class="fas fa-eye toggle-password" onclick="togglePassword('login-password')"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="remember-me">
+                            <span>Remember me</span>
+                        </label>
+                        <a href="#" class="forgot-link">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+
+                    <div class="form-footer">
+                        <p>Don't have an account? <a href="#" onclick="showRegister()">Register Now</a></p>
+                    </div>
+                </form>
+
+                <div class="admin-login-link">
+                    <a href="#" onclick="showAdminLogin()">
+                        <i class="fas fa-user-shield"></i> Admin Login
+                    </a>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <div id="register-form-container" class="form-container">
+                <h2>Create Account</h2>
+                <p class="subtitle">Join FitZone Gym today</p>
+
+                <form id="register-form">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="register-name" placeholder="John Doe" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address (Gmail)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="register-email" placeholder="yourname@gmail.com" required>
+                        </div>
+                        <small class="input-hint">Please use a Gmail address</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-phone"></i>
+                            <input type="tel" id="register-phone" placeholder="+1 234 567 8900" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="register-password" placeholder="Create a strong password" required>
+                            <i class="fas fa-eye toggle-password" onclick="togglePassword('register-password')"></i>
+                        </div>
+                        <small class="input-hint">Minimum 6 characters</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="register-confirm" placeholder="Re-enter your password" required>
+                            <i class="fas fa-eye toggle-password" onclick="togglePassword('register-confirm')"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="terms-accept" required>
+                            <span>I agree to the Terms & Conditions and Privacy Policy</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+
+                    <div class="form-footer">
+                        <p>Already have an account? <a href="#" onclick="showLogin()">Sign In</a></p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Admin Login Form -->
+            <div id="admin-login-container" class="form-container">
+                <h2>Admin Access</h2>
+                <p class="subtitle">Enter admin credentials</p>
+
+                <form id="admin-login-form">
+                    <div class="form-group">
+                        <label>Admin Username</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user-shield"></i>
+                            <input type="text" id="admin-username" placeholder="admin" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Admin Password</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-key"></i>
+                            <input type="password" id="admin-password" placeholder="Enter admin password" required>
+                            <i class="fas fa-eye toggle-password" onclick="togglePassword('admin-password')"></i>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Admin Sign In
+                    </button>
+
+                    <div class="form-footer">
+                        <p><a href="#" onclick="showLogin()">← Back to Member Login</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 id="modal-title">Registration Successful!</h2>
+            <p id="modal-message">Your account request has been submitted. An admin will approve it shortly.</p>
+            <button class="btn-primary" onclick="closeSuccessModal()">OK</button>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>

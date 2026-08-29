@@ -1,0 +1,927 @@
+// Global variables
+let html5QrCode;
+let currentMembers = [];
+const CHECKIN_QR_TEXT = "GYM_CHECKIN_2024";
+const CHECKOUT_QR_TEXT = "GYM_CHECKOUT_2024";
+let currentAction = null;
+let scannerActive = false;
+
+// Initialize app
+document.addEventListener('DOMContentLoaded', () => {
+    initializeNavigation();
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+    generateQRCodes();
+    loadDashboard();
+    loadMembers();
+    setupEventListeners();
+    
+    // Auto-start QR scanner when on attendance page
+    const attendancePage = document.getElementById('attendance');
+    if (attendancePage && attendancePage.classList.contains('active')) {
+        startMainQRScanner();
+    }
+});
+
+// Update date and time
+function updateDateTime() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const dateString = now.toLocaleDateString('en-US', options);
+    const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    
+    document.querySelectorAll('#current-date, #attendance-date, #success-date').forEach(el => {
+        if (el) el.textContent = dateString;
+    });
+    
+    document.querySelectorAll('#attendance-time, #success-time').forEach(el => {
+        if (el) el.textContent = timeString;
+    });
+}
+
+// Navigation
+function initializeNavigation() {
+    const navItems = document.querySelectorAll('.nav-item');
+    const pages = document.querySelectorAll('.page');
+    
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetPage = item.dataset.page;
+            
+            // Update active nav
+            navItems.forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+            
+            // Update active page
+            pages.forEach(page => page.classList.remove('active'));
+            document.getElementById(targetPage).classList.add('active');
+            
+            // Stop scanner if leaving attendance page
+            if (scannerActive && targetPage !== 'attendance') {
+                stopMainQRScanner();
+            }
+            
+            // Start scanner if entering attendance page
+            if (targetPage === 'attendance') {
+                setTimeout(() => startMainQRScanner(), 300);
+            }
+            
+            // Load page data
+            if (targetPage === 'dashboard') loadDashboard();
+            if (targetPage === 'reports') loadReports();
+            if (targetPage === 'members') loadMembers();
+            if (targetPage === 'account-requests') loadAccountRequests();
+        });
+    });
+    
+    // Mobile menu toggle
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (menuToggle) {
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+    }
+}
+
+// Generate QR Codes
+function generateQRCodes() {
+    // Dashboard QR codes
+    QRCode.toCanvas(CHECKIN_QR_TEXT, { width: 250, margin: 2 }, (error, canvas) => {
+        if (!error) {
+            const container = document.getElementById('qr-checkin');
+            if (container) {
+                container.innerHTML = '';
+                container.appendChild(canvas);
+            }
+            
+            // Also for QR page
+            const largeContainer = document.getElementById('qr-large-checkin');
+            if (largeContainer) {
+                QRCode.toCanvas(CHECKIN_QR_TEXT, { width: 350, margin: 2 }, (err, cnv) => {
+                    if (!err) {
+                        largeContainer.innerHTML = '';
+                        largeContainer.appendChild(cnv);
+                    }
+                });
+            }
+        }
+    });
+    
+    QRCode.toCanvas(CHECKOUT_QR_TEXT, { width: 250, margin: 2 }, (error, canvas) => {
+        if (!error) {
+            const container = document.getElementById('qr-checkout');
+            if (container) {
+                container.innerHTML = '';
+                container.appendChild(canvas);
+            }
+            
+            // Also for QR page
+            const largeContainer = document.getElementById('qr-large-checkout');
+            if (largeContainer) {
+                QRCode.toCanvas(CHECKOUT_QR_TEXT, { width: 350, margin: 2 }, (err, cnv) => {
+                    if (!err) {
+                        largeContainer.innerHTML = '';
+                        largeContainer.appendChild(cnv);
+                    }
+                });
+            }
+        }
+    });
+}
+
+// QR Tab switching
+document.querySelectorAll('.qr-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.qr-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.qr-canvas').forEach(c => c.classList.remove('active'));
+        
+        tab.classList.add('active');
+        const qrType = tab.dataset.qr;
+        document.getElementById(`qr-${qrType}`).classList.add('active');
+    });
+});
+
+// Event Listeners
+function setupEventListeners() {
+    // Cancel member selection
+    const cancelBtn = document.getElementById('cancel-selection');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', () => {
+            document.getElementById('member-selection-modal').style.display = 'none';
+            document.getElementById('member-selection-modal').classList.remove('show');
+            currentAction = null;
+        });
+    }
+    
+    // Close success modal
+    const closeSuccessBtn = document.getElementById('close-success-modal');
+    if (closeSuccessBtn) {
+        closeSuccessBtn.addEventListener('click', () => {
+            document.getElementById('success-modal').style.display = 'none';
+            document.getElementById('success-modal').classList.remove('show');
+        });
+    }
+    
+    // Member search in selection modal
+    const memberSearchInput = document.getElementById('member-search-input');
+    if (memberSearchInput) {
+        memberSearchInput.addEventListener('input', filterMemberList);
+    }
+    
+    // Add member button
+    const addMemberBtn = document.getElementById('add-member-btn');
+    if (addMemberBtn) {
+        addMemberBtn.addEventListener('click', () => {
+            const modal = document.getElementById('add-member-modal');
+            modal.style.display = 'flex';
+            modal.classList.add('show');
+        });
+    }
+    
+    // Close modal
+    const closeModal = document.querySelector('.close-modal');
+    if (closeModal) {
+        closeModal.addEventListener('click', () => {
+            const modal = document.getElementById('add-member-modal');
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+        });
+    }
+    
+    // Close modal on background click
+    document.addEventListener('click', (e) => {
+        const modal = document.getElementById('add-member-modal');
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+        }
+    });
+    
+    // Download/Print QR
+    const downloadBtn = document.getElementById('download-qr');
+    if (downloadBtn) {
+        downloadBtn.addEventListener('click', downloadQR);
+    }
+    
+    const printBtn = document.getElementById('print-qr');
+    if (printBtn) {
+        printBtn.addEventListener('click', printQR);
+    }
+}
+
+// Main QR Scanner (Always on in Attendance page)
+function startMainQRScanner() {
+    if (scannerActive) return;
+    
+    html5QrCode = new Html5Qrcode("reader");
+    
+    const config = {
+        fps: 10,
+        qrbox: { width: 250, height: 250 }
+    };
+    
+    html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        onMainScanSuccess,
+        onScanError
+    ).then(() => {
+        scannerActive = true;
+    }).catch(err => {
+        console.error("Camera error:", err);
+        document.getElementById('qr-scanner-main').innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #EF4444;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3em; margin-bottom: 15px;"></i>
+                <p><strong>Camera Access Denied</strong></p>
+                <p>Please allow camera permissions to scan QR codes.</p>
+            </div>
+        `;
+    });
+}
+
+function stopMainQRScanner() {
+    if (html5QrCode && scannerActive) {
+        html5QrCode.stop().then(() => {
+            scannerActive = false;
+        }).catch(err => {
+            console.error('Error stopping scanner:', err);
+        });
+    }
+}
+
+function onMainScanSuccess(decodedText) {
+    if (decodedText === CHECKIN_QR_TEXT) {
+        currentAction = 'checkin';
+        html5QrCode.pause();
+        showMemberSelectionModal('Check-In');
+    } else if (decodedText === CHECKOUT_QR_TEXT) {
+        currentAction = 'checkout';
+        html5QrCode.pause();
+        showMemberSelectionModal('Check-Out');
+    } else {
+        // Invalid QR code - show brief alert
+        const reader = document.getElementById('reader');
+        const originalContent = reader.innerHTML;
+        reader.innerHTML = `
+            <div style="text-align: center; padding: 40px; background: #FEE2E2; color: #DC2626; border-radius: 12px;">
+                <i class="fas fa-times-circle" style="font-size: 3em; margin-bottom: 10px;"></i>
+                <p><strong>Invalid QR Code</strong></p>
+                <p>Please scan the gym QR code</p>
+            </div>
+        `;
+        setTimeout(() => {
+            reader.innerHTML = originalContent;
+        }, 2000);
+    }
+}
+
+function onScanError(errorMessage) {
+    // Ignore continuous scan errors
+}
+
+// Show member selection modal after successful QR scan
+function showMemberSelectionModal(actionType) {
+    const modal = document.getElementById('member-selection-modal');
+    const title = document.getElementById('scan-action-title');
+    const badge = document.getElementById('scan-action-badge');
+    
+    if (actionType === 'Check-In') {
+        title.textContent = 'Check In to Gym';
+        badge.className = 'action-badge-large checkin';
+        badge.innerHTML = '<i class="fas fa-sign-in-alt"></i> CHECK IN';
+    } else {
+        title.textContent = 'Check Out from Gym';
+        badge.className = 'action-badge-large checkout';
+        badge.innerHTML = '<i class="fas fa-sign-out-alt"></i> CHECK OUT';
+    }
+    
+    // Load members into modal
+    displayMembersInModal();
+    
+    modal.style.display = 'flex';
+    modal.classList.add('show');
+    
+    // Focus search input
+    setTimeout(() => {
+        document.getElementById('member-search-input').focus();
+    }, 300);
+}
+
+// Display members in selection modal
+function displayMembersInModal() {
+    const container = document.getElementById('members-scroll-list');
+    
+    if (!currentMembers || currentMembers.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-users-slash"></i>
+                <p>No members found</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const sorted = [...currentMembers].sort((a, b) => a.name.localeCompare(b.name));
+    
+    container.innerHTML = sorted.map(member => {
+        const initial = member.name.charAt(0).toUpperCase();
+        const colors = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
+        const color = colors[member.name.charCodeAt(0) % colors.length];
+        
+        return `
+            <div class="member-select-item" onclick="selectMemberForAttendance('${member.id}', '${member.name.replace(/'/g, "\\'")}')">
+                <div class="member-avatar-large" style="background: ${color}">
+                    ${initial}
+                </div>
+                <div class="member-details-full">
+                    <div class="member-name-bold">${member.name}</div>
+                    <div class="member-meta">
+                        <span class="member-type-badge">${member.membershipType}</span>
+                        <span class="member-id">ID: ${member.id.slice(-4)}</span>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+        `;
+    }).join('');
+}
+
+// Filter member list
+function filterMemberList() {
+    const searchTerm = document.getElementById('member-search-input').value.toLowerCase();
+    const items = document.querySelectorAll('.member-select-item');
+    
+    items.forEach(item => {
+        const name = item.querySelector('.member-name-bold').textContent.toLowerCase();
+        if (name.includes(searchTerm)) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+// Select member and process attendance
+function selectMemberForAttendance(memberId, memberName) {
+    // Close selection modal
+    document.getElementById('member-selection-modal').style.display = 'none';
+    document.getElementById('member-selection-modal').classList.remove('show');
+    
+    // Process attendance
+    processAttendance(memberId, memberName);
+}
+
+// Process attendance
+async function processAttendance(memberId, memberName) {
+    try {
+        const response = await fetch('/api/attendance', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                memberId: memberId,
+                action: currentAction
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showSuccessModal(data.member, data.attendance);
+            
+            // Resume scanner after 3 seconds
+            setTimeout(() => {
+                if (html5QrCode) {
+                    html5QrCode.resume();
+                }
+            }, 3000);
+        } else {
+            alert(data.error || 'Error recording attendance');
+            // Resume scanner
+            if (html5QrCode) {
+                html5QrCode.resume();
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error recording attendance. Please try again.');
+        // Resume scanner
+        if (html5QrCode) {
+            html5QrCode.resume();
+        }
+    }
+}
+
+// Show success modal
+function showSuccessModal(member, attendance) {
+    const modal = document.getElementById('success-modal');
+    const message = document.getElementById('success-message');
+    
+    const actionText = attendance.action === 'checkin' ? 'checked-in to' : 'checked-out from';
+    message.textContent = `${member.name}, you are successfully ${actionText} FitZone Gym.`;
+    
+    modal.style.display = 'flex';
+    modal.classList.add('show');
+    
+    // Auto close after 5 seconds
+    setTimeout(() => {
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+        loadDashboard();
+    }, 5000);
+    
+    // Close on click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            loadDashboard();
+        }
+    });
+}
+
+// Load Dashboard
+async function loadDashboard() {
+    try {
+        const [membersRes, attendanceRes, todayRes] = await Promise.all([
+            fetch('/api/members'),
+            fetch('/api/attendance'),
+            fetch('/api/attendance/today/all')
+        ]);
+        
+        const members = await membersRes.json();
+        const allAttendance = await attendanceRes.json();
+        const todayAttendance = await todayRes.json();
+        
+        // Calculate stats
+        const todayCheckins = todayAttendance.filter(a => a.action === 'checkin');
+        const todayCheckouts = todayAttendance.filter(a => a.action === 'checkout');
+        const currentlyIn = todayCheckins.length - todayCheckouts.length;
+        const absent = members.length - todayCheckins.length;
+        
+        // Update dashboard stats
+        document.getElementById('total-members-dash').textContent = members.length;
+        document.getElementById('present-today-dash').textContent = todayCheckins.length;
+        document.getElementById('absent-today-dash').textContent = absent;
+        document.getElementById('checked-out-dash').textContent = currentlyIn;
+        
+        // Display today's attendance
+        displayTodayAttendance(todayAttendance);
+        
+    } catch (error) {
+        console.error('Error loading dashboard:', error);
+    }
+}
+
+// Display today's attendance table
+function displayTodayAttendance(attendance) {
+    const container = document.getElementById('today-attendance-list');
+    
+    if (!attendance || attendance.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #94A3B8;">No attendance records today</div>';
+        return;
+    }
+    
+    // Show latest 5 records
+    const latest = attendance.slice(-5).reverse();
+    
+    container.innerHTML = latest.map(record => {
+        const initial = record.memberName.charAt(0).toUpperCase();
+        const time = record.checkInTime || new Date(record.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        const actionClass = record.action === 'checkin' ? 'checkin' : 'checkout';
+        const actionText = record.action === 'checkin' ? 'Checked In' : 'Checked Out';
+        
+        return `
+            <div class="attendance-row">
+                <div class="member-info-cell">
+                    <div class="member-avatar">${initial}</div>
+                    <span class="member-name">${record.memberName}</span>
+                </div>
+                <span>${record.memberId || 'N/A'}</span>
+                <span>${record.action === 'checkin' ? time : '-'}</span>
+                <span>${record.action === 'checkout' ? time : '-'}</span>
+                <span class="status-badge ${actionClass}">
+                    <i class="fas fa-circle"></i>
+                    ${actionText}
+                </span>
+            </div>
+        `;
+    }).join('');
+}
+
+// Load Members
+async function loadMembers() {
+    try {
+        const response = await fetch('/api/members');
+        currentMembers = await response.json();
+        displayMembers();
+    } catch (error) {
+        console.error('Error loading members:', error);
+    }
+}
+
+// Display members
+function displayMembers() {
+    const container = document.getElementById('members-list');
+    
+    if (!currentMembers || currentMembers.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #94A3B8;">No members yet</div>';
+        return;
+    }
+    
+    container.innerHTML = currentMembers.map(member => `
+        <div class="member-card">
+            <h4>${member.name}</h4>
+            <p><i class="fas fa-envelope"></i> ${member.email}</p>
+            <p><i class="fas fa-phone"></i> ${member.phone}</p>
+            <p><i class="fas fa-crown"></i> ${member.membershipType}</p>
+            <p><i class="fas fa-calendar"></i> Joined: ${new Date(member.joinDate).toLocaleDateString()}</p>
+        </div>
+    `).join('');
+}
+
+// Add Member
+async function handleAddMember(e) {
+    e.preventDefault();
+    
+    const memberData = {
+        name: document.getElementById('member-name').value,
+        email: document.getElementById('member-email').value,
+        phone: document.getElementById('member-phone').value,
+        membershipType: document.getElementById('member-type').value
+    };
+    
+    try {
+        const response = await fetch('/api/members', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(memberData)
+        });
+        
+        if (response.ok) {
+            alert('Member added successfully!');
+            document.getElementById('add-member-form').reset();
+            const modal = document.getElementById('add-member-modal');
+            modal.style.display = 'none';
+            modal.classList.remove('show');
+            loadMembers();
+            loadDashboard();
+        } else {
+            alert('Failed to add member');
+        }
+    } catch (error) {
+        alert('Error adding member');
+    }
+}
+
+// Add member form submit handler
+const addMemberForm = document.getElementById('add-member-form');
+if (addMemberForm) {
+    addMemberForm.addEventListener('submit', handleAddMember);
+}
+
+// Load Reports
+async function loadReports() {
+    try {
+        const [attendanceRes, todayRes] = await Promise.all([
+            fetch('/api/attendance'),
+            fetch('/api/attendance/today/all')
+        ]);
+        
+        const allAttendance = await attendanceRes.json();
+        const todayAttendance = await todayRes.json();
+        
+        const todayCheckins = todayAttendance.filter(a => a.action === 'checkin').length;
+        const todayCheckouts = todayAttendance.filter(a => a.action === 'checkout').length;
+        const currentlyIn = todayCheckins - todayCheckouts;
+        
+        document.getElementById('report-checkins').textContent = todayCheckins;
+        document.getElementById('report-checkouts').textContent = todayCheckouts;
+        document.getElementById('report-current').textContent = currentlyIn;
+        
+        displayAllRecords(allAttendance);
+    } catch (error) {
+        console.error('Error loading reports:', error);
+    }
+}
+
+// Display all records
+function displayAllRecords(attendance) {
+    const container = document.getElementById('all-records-table');
+    
+    if (!attendance || attendance.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 40px; color: #94A3B8;">No records found</div>';
+        return;
+    }
+    
+    const latest = attendance.slice(-50).reverse();
+    
+    container.innerHTML = `
+        <div class="table-header">
+            <span>Member Name</span>
+            <span>Member ID</span>
+            <span>Date</span>
+            <span>Time</span>
+            <span>Action</span>
+        </div>
+        ${latest.map(record => {
+            const actionClass = record.action === 'checkin' ? 'checkin' : 'checkout';
+            const actionText = record.action === 'checkin' ? 'Check-In' : 'Check-Out';
+            
+            return `
+                <div class="attendance-row">
+                    <span>${record.memberName}</span>
+                    <span>${record.memberId || 'N/A'}</span>
+                    <span>${new Date(record.date).toLocaleDateString()}</span>
+                    <span>${record.checkInTime}</span>
+                    <span class="status-badge ${actionClass}">${actionText}</span>
+                </div>
+            `;
+        }).join('')}
+    `;
+}
+
+// Download QR
+function downloadQR() {
+    const activeQR = document.querySelector('.qr-canvas.active canvas');
+    if (activeQR) {
+        const url = activeQR.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'gym-qr-code.png';
+        a.click();
+    }
+}
+
+// Print QR
+function printQR() {
+    const activeQR = document.querySelector('.qr-canvas.active canvas');
+    if (activeQR) {
+        const printWindow = window.open('', '', 'width=600,height=700');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Gym QR Code</title>
+                <style>
+                    body { 
+                        text-align: center; 
+                        font-family: Arial, sans-serif;
+                        padding: 40px;
+                    }
+                    h1 { color: #4F46E5; margin-bottom: 20px; }
+                    img { margin: 20px 0; max-width: 400px; }
+                    p { font-size: 18px; color: #666; }
+                </style>
+            </head>
+            <body>
+                <h1>🏋️ FitZone Gym QR Code</h1>
+                <img src="${activeQR.toDataURL()}" />
+                <p>Scan to mark your attendance</p>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 250);
+    }
+}
+
+// Print QR Large (from QR page)
+function printQRLarge(type) {
+    const canvas = document.querySelector(`#qr-large-${type} canvas`);
+    if (canvas) {
+        const title = type === 'checkin' ? 'Check-In' : 'Check-Out';
+        const color = type === 'checkin' ? '#10B981' : '#F59E0B';
+        
+        const printWindow = window.open('', '', 'width=600,height=700');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>Gym ${title} QR Code</title>
+                <style>
+                    body { 
+                        text-align: center; 
+                        font-family: Arial, sans-serif;
+                        padding: 40px;
+                    }
+                    h1 { color: ${color}; margin-bottom: 20px; }
+                    img { margin: 20px 0; max-width: 400px; border: 4px solid ${color}; border-radius: 12px; }
+                    p { font-size: 18px; color: #666; }
+                </style>
+            </head>
+            <body>
+                <h1>🏋️ FitZone Gym ${title}</h1>
+                <img src="${canvas.toDataURL()}" />
+                <p>Scan to ${title.toLowerCase()}</p>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+            printWindow.print();
+            printWindow.close();
+        }, 250);
+    }
+}
+
+// Download QR Large
+function downloadQRLarge(type) {
+    const canvas = document.querySelector(`#qr-large-${type} canvas`);
+    if (canvas) {
+        const url = canvas.toDataURL('image/png');
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `gym-${type}-qr-code.png`;
+        a.click();
+    }
+}
+
+// ========== ACCOUNT REQUESTS MANAGEMENT ==========
+
+// Load pending account requests
+async function loadAccountRequests() {
+    try {
+        const response = await fetch('/api/auth/pending');
+        const pendingAccounts = await response.json();
+        
+        displayAccountRequests(pendingAccounts);
+    } catch (error) {
+        console.error('Error loading account requests:', error);
+    }
+}
+
+// Display account requests
+function displayAccountRequests(accounts) {
+    const container = document.getElementById('pending-requests-list');
+    
+    if (!accounts || accounts.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 60px; color: #94A3B8;">
+                <i class="fas fa-inbox" style="font-size: 4em; margin-bottom: 20px; display: block;"></i>
+                <h3>No Pending Requests</h3>
+                <p>All account requests have been processed</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = accounts.map(account => {
+        const initial = account.name.charAt(0).toUpperCase();
+        const date = new Date(account.createdAt).toLocaleDateString();
+        const time = new Date(account.createdAt).toLocaleTimeString();
+        
+        return `
+            <div class="request-card">
+                <div class="request-header">
+                    <div class="member-avatar">${initial}</div>
+                    <div class="request-info">
+                        <h3>${account.name}</h3>
+                        <p class="request-date">
+                            <i class="far fa-clock"></i>
+                            Requested on ${date} at ${time}
+                        </p>
+                    </div>
+                    <div class="request-status pending">
+                        <i class="fas fa-clock"></i>
+                        Pending
+                    </div>
+                </div>
+                <div class="request-details">
+                    <div class="detail-row">
+                        <i class="fas fa-envelope"></i>
+                        <span>${account.email}</span>
+                    </div>
+                    <div class="detail-row">
+                        <i class="fas fa-phone"></i>
+                        <span>${account.phone}</span>
+                    </div>
+                </div>
+                <div class="request-actions">
+                    <button class="btn-approve" onclick="approveAccount('${account.id}', '${account.name}')">
+                        <i class="fas fa-check"></i>
+                        Approve
+                    </button>
+                    <button class="btn-reject" onclick="rejectAccount('${account.id}', '${account.name}')">
+                        <i class="fas fa-times"></i>
+                        Reject
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Approve account
+async function approveAccount(accountId, name) {
+    const membershipType = prompt(`Approve ${name}?\n\nSelect membership type:\n- Basic\n- Premium\n- VIP\n\nEnter type:`, 'Basic');
+    
+    if (!membershipType) return;
+    
+    if (!['Basic', 'Premium', 'VIP'].includes(membershipType)) {
+        alert('Invalid membership type. Please enter Basic, Premium, or VIP.');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/auth/approve/${accountId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ membershipType })
+        });
+        
+        if (response.ok) {
+            alert(`✅ Account approved! ${name} can now login and access the gym.`);
+            loadAccountRequests();
+            loadMembers();
+            loadDashboard();
+        } else {
+            alert('Failed to approve account');
+        }
+    } catch (error) {
+        alert('Error approving account');
+    }
+}
+
+// Reject account
+async function rejectAccount(accountId, name) {
+    const confirm = window.confirm(`Are you sure you want to reject the account request from ${name}?`);
+    
+    if (!confirm) return;
+    
+    try {
+        const response = await fetch(`/api/auth/reject/${accountId}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            alert(`Account request from ${name} has been rejected.`);
+            loadAccountRequests();
+        } else {
+            alert('Failed to reject account');
+        }
+    } catch (error) {
+        alert('Error rejecting account');
+    }
+}
+
+// Check authentication on page load
+window.addEventListener('load', () => {
+    const userSession = localStorage.getItem('userSession');
+    const userRole = localStorage.getItem('userRole');
+    
+    if (!userSession) {
+        // Not logged in, redirect to login page
+        window.location.href = '/login.html';
+        return;
+    }
+    
+    // Update user profile in top bar
+    const userProfileName = document.querySelector('.user-profile span');
+    if (userProfileName && userSession) {
+        const user = JSON.parse(userSession);
+        userProfileName.textContent = user.name;
+    }
+    
+    // Hide admin-only pages for members
+    if (userRole === 'member') {
+        const adminPages = ['members', 'account-requests', 'qrcode', 'reports', 'settings'];
+        adminPages.forEach(pageId => {
+            const navItem = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+            if (navItem) {
+                navItem.style.display = 'none';
+            }
+        });
+        
+        // Redirect member to attendance page
+        document.querySelector('.nav-item[data-page="attendance"]').click();
+    }
+});
+
+// Logout function
+function logout() {
+    localStorage.removeItem('userSession');
+    localStorage.removeItem('userRole');
+    window.location.href = '/login.html';
+}
+
+// Toggle profile menu
+function toggleProfileMenu() {
+    const dropdown = document.getElementById('profile-dropdown');
+    dropdown.classList.toggle('show');
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.user-profile')) {
+        const dropdown = document.getElementById('profile-dropdown');
+        if (dropdown) {
+            dropdown.classList.remove('show');
+        }
+    }
+});
