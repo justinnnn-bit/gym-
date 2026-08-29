@@ -229,7 +229,7 @@ async function getMemberAttendance(memberId) {
 
 async function getPendingAccounts() {
     try {
-        const { data, error } = await supabase
+        const { data, error } = await supabaseInstance
             .from('pending_accounts')
             .select('*')
             .eq('status', 'pending')

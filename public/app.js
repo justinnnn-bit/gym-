@@ -745,8 +745,8 @@ function displayAccountRequests(accounts) {
     
     container.innerHTML = accounts.map(account => {
         const initial = account.name.charAt(0).toUpperCase();
-        const date = new Date(account.createdAt).toLocaleDateString();
-        const time = new Date(account.createdAt).toLocaleTimeString();
+        const date = new Date(account.created_at).toLocaleDateString();
+        const time = new Date(account.created_at).toLocaleTimeString();
         
         return `
             <div class="request-card">
