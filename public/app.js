@@ -743,50 +743,65 @@ function displayAccountRequests(accounts) {
         return;
     }
     
-    container.innerHTML = accounts.map(account => {
-        const initial = account.name.charAt(0).toUpperCase();
-        const date = new Date(account.created_at).toLocaleDateString();
-        const time = new Date(account.created_at).toLocaleTimeString();
-        
-        return `
-            <div class="request-card">
-                <div class="request-header">
-                    <div class="member-avatar">${initial}</div>
-                    <div class="request-info">
-                        <h3>${account.name}</h3>
-                        <p class="request-date">
-                            <i class="far fa-clock"></i>
-                            Requested on ${date} at ${time}
-                        </p>
-                    </div>
-                    <div class="request-status pending">
-                        <i class="fas fa-clock"></i>
-                        Pending
-                    </div>
-                </div>
-                <div class="request-details">
-                    <div class="detail-row">
-                        <i class="fas fa-envelope"></i>
-                        <span>${account.email}</span>
-                    </div>
-                    <div class="detail-row">
-                        <i class="fas fa-phone"></i>
-                        <span>${account.phone}</span>
-                    </div>
-                </div>
-                <div class="request-actions">
-                    <button class="btn-approve" onclick="approveAccount('${account.id}', '${account.name}')">
-                        <i class="fas fa-check"></i>
-                        Approve
-                    </button>
-                    <button class="btn-reject" onclick="rejectAccount('${account.id}', '${account.name}')">
-                        <i class="fas fa-times"></i>
-                        Reject
-                    </button>
-                </div>
-            </div>
-        `;
-    }).join('');
+    // Create a compact table view for better scalability
+    container.innerHTML = `
+        <div class="requests-table-container">
+            <table class="requests-table">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Requested</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${accounts.map(account => {
+                        const initial = account.name.charAt(0).toUpperCase();
+                        const date = new Date(account.created_at).toLocaleDateString();
+                        const time = new Date(account.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                        
+                        return `
+                            <tr class="request-row">
+                                <td>
+                                    <div class="member-cell">
+                                        <div class="member-avatar-small">${initial}</div>
+                                        <span class="member-name">${account.name}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="email-text">${account.email}</span>
+                                </td>
+                                <td>
+                                    <span class="phone-text">${account.phone}</span>
+                                </td>
+                                <td>
+                                    <div class="date-cell">
+                                        <span class="date-text">${date}</span>
+                                        <span class="time-text">${time}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-table-approve" onclick="approveAccount('${account.id}', '${account.name}')" title="Approve">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button class="btn-table-reject" onclick="rejectAccount('${account.id}', '${account.name}')" title="Reject">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+        <div class="requests-summary">
+            <span>${accounts.length} pending request${accounts.length !== 1 ? 's' : ''}</span>
+        </div>
+    `;
 }
 
 // Approve account
