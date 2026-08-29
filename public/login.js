@@ -44,25 +44,21 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     const password = document.getElementById('login-password').value;
     
     try {
-        const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
+        // Use Supabase client
+        const result = await window.supabaseClient.loginMember(email, password);
         
-        const data = await response.json();
-        
-        if (response.ok) {
+        if (result.success) {
             // Store session
-            localStorage.setItem('userSession', JSON.stringify(data.user));
+            localStorage.setItem('userSession', JSON.stringify(result.user));
             localStorage.setItem('userRole', 'member');
             
             // Redirect to main app
             window.location.href = '/index.html';
         } else {
-            alert(data.error || 'Login failed. Please check your credentials.');
+            alert(result.error || 'Login failed. Please check your credentials.');
         }
     } catch (error) {
+        console.error('Login error:', error);
         alert('Error logging in. Please try again.');
     }
 });
@@ -100,20 +96,10 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
     }
     
     try {
-        console.log('Sending registration request to:', window.location.origin + '/api/auth/register');
+        // Use Supabase client
+        const result = await window.supabaseClient.registerMember(name, email, phone, password);
         
-        const response = await fetch('/api/auth/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, phone, password })
-        });
-        
-        console.log('Response status:', response.status);
-        
-        const data = await response.json();
-        console.log('Response data:', data);
-        
-        if (response.ok) {
+        if (result.success) {
             // Show success modal
             showSuccessModal(
                 'Registration Successful!',
@@ -128,11 +114,11 @@ document.getElementById('register-form').addEventListener('submit', async (e) =>
                 showLogin();
             }, 3000);
         } else {
-            alert(data.error || 'Registration failed. Please try again.');
+            alert(result.error || 'Registration failed. Please try again.');
         }
     } catch (error) {
         console.error('Registration error:', error);
-        alert('Error during registration. Is the server running? Check console for details.');
+        alert('Error during registration. Please try again.');
     }
 });
 
@@ -144,25 +130,21 @@ document.getElementById('admin-login-form').addEventListener('submit', async (e)
     const password = document.getElementById('admin-password').value;
     
     try {
-        const response = await fetch('/api/auth/admin-login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
+        // Use Supabase client
+        const result = await window.supabaseClient.loginAdmin(username, password);
         
-        const data = await response.json();
-        
-        if (response.ok) {
+        if (result.success) {
             // Store admin session
-            localStorage.setItem('userSession', JSON.stringify(data.admin));
+            localStorage.setItem('userSession', JSON.stringify(result.admin));
             localStorage.setItem('userRole', 'admin');
             
             // Redirect to main app
             window.location.href = '/index.html';
         } else {
-            alert(data.error || 'Admin login failed. Please check your credentials.');
+            alert(result.error || 'Admin login failed. Please check your credentials.');
         }
     } catch (error) {
+        console.error('Admin login error:', error);
         alert('Error during admin login. Please try again.');
     }
 });
