@@ -42,7 +42,7 @@ async function loginMember(email, password) {
         if (error) throw error;
 
         // Check if account is approved
-        const { data: account, error: accountError } = await supabase
+        const {data: account, error: accountError } = await supabaseInstance
             .from('accounts')
             .select('*, members(*)')
             .eq('email', email)
@@ -114,9 +114,8 @@ async function logout() {
 
 // ========== MEMBERS ==========
 
-async function getAllMembers() {
-    try {
-        const { data, error } = await supabase
+async function getAllMembers()  {try {
+        const { data, error } = await supabaseInstance
             .from('members')
             .select('*')
             .eq('active', true)
@@ -130,9 +129,8 @@ async function getAllMembers() {
     }
 }
 
-async function addMember(memberData) {
-    try {
-        const { data, error } = await supabase
+async function addMember(memberData)  {try {
+        const { data, error } = await supabaseInstance
             .from('members')
             .insert([{
                 name: memberData.name,
@@ -152,16 +150,15 @@ async function addMember(memberData) {
 
 // ========== ATTENDANCE ==========
 
-async function recordAttendance(memberId, action) {
-    try {
+async function recordAttendance(memberId, action)  {try {
         // Get member name
-        const { data: member } = await supabase
+        const { data: member } = await supabaseInstance
             .from('members')
             .select('name')
             .eq('id', memberId)
             .single();
 
-        const { data, error } = await supabase
+        const {data, error } = await supabaseInstance
             .from('attendance')
             .insert([{
                 member_id: memberId,
@@ -178,9 +175,8 @@ async function recordAttendance(memberId, action) {
     }
 }
 
-async function getTodayAttendance() {
-    try {
-        const { data, error } = await supabase
+async function getTodayAttendance()  {try {
+        const { data, error } = await supabaseInstance
             .from('todays_attendance')
             .select('*')
             .order('check_time', { ascending: false });
@@ -193,9 +189,8 @@ async function getTodayAttendance() {
     }
 }
 
-async function getAllAttendance() {
-    try {
-        const { data, error } = await supabase
+async function getAllAttendance()  {try {
+        const { data, error } = await supabaseInstance
             .from('attendance')
             .select('*, members(name)')
             .order('check_time', { ascending: false })
@@ -209,9 +204,8 @@ async function getAllAttendance() {
     }
 }
 
-async function getMemberAttendance(memberId) {
-    try {
-        const { data, error } = await supabase
+async function getMemberAttendance(memberId)  {try {
+        const { data, error } = await supabaseInstance
             .from('attendance')
             .select('*')
             .eq('member_id', memberId)
@@ -246,7 +240,7 @@ async function getPendingAccounts() {
 async function approveAccount(accountId, membershipType) {
     try {
         // Get pending account details
-        const { data: pendingAccount } = await supabase
+        const { data: pendingAccount } = await supabaseInstance
             .from('pending_accounts')
             .select('*')
             .eq('id', accountId)
@@ -255,7 +249,7 @@ async function approveAccount(accountId, membershipType) {
         if (!pendingAccount) throw new Error('Account not found');
 
         // Create member
-        const { data: newMember, error: memberError } = await supabase
+        const {data: newMember, error: memberError } = await supabaseInstance
             .from('members')
             .insert([{
                 name: pendingAccount.name,
@@ -269,7 +263,7 @@ async function approveAccount(accountId, membershipType) {
         if (memberError) throw memberError;
 
         // Create approved account
-        const { error: accountError } = await supabase
+        const {error: accountError } = await supabaseInstance
             .from('accounts')
             .insert([{
                 member_id: newMember.id,
@@ -283,7 +277,7 @@ async function approveAccount(accountId, membershipType) {
         if (accountError) throw accountError;
 
         // Update pending account status
-        await supabase
+        await supabaseInstance
             .from('pending_accounts')
             .update({ status: 'approved' })
             .eq('id', accountId);
@@ -297,7 +291,7 @@ async function approveAccount(accountId, membershipType) {
 
 async function rejectAccount(accountId) {
     try {
-        const { error } = await supabase
+        const { error } = await supabaseInstance
             .from('pending_accounts')
             .update({ status: 'rejected' })
             .eq('id', accountId);
@@ -312,30 +306,29 @@ async function rejectAccount(accountId) {
 
 // ========== DASHBOARD STATS ==========
 
-async function getDashboardStats() {
-    try {
+async function getDashboardStats()  {try {
         // Get total members
-        const { count: totalMembers } = await supabase
+        const { count: totalMembers } = await supabaseInstance
             .from('members')
             .select('*', { count: 'exact', head: true })
             .eq('active', true);
 
         // Get today's check-ins
-        const { count: todayCheckins } = await supabase
+        const {count: todayCheckins } = await supabaseInstance
             .from('attendance')
             .select('*', { count: 'exact', head: true })
             .eq('action', 'checkin')
             .gte('check_time', new Date().toISOString().split('T')[0]);
 
         // Get today's check-outs
-        const { count: todayCheckouts } = await supabase
+        const {count: todayCheckouts } = await supabaseInstance
             .from('attendance')
             .select('*', { count: 'exact', head: true })
             .eq('action', 'checkout')
             .gte('check_time', new Date().toISOString().split('T')[0]);
 
         // Get currently in gym
-        const { data: currentlyInGym } = await supabase
+        const {data: currentlyInGym } = await supabaseInstance
             .from('currently_in_gym')
             .select('*');
 
@@ -377,10 +370,9 @@ window.supabaseClient = {
 
 // ========== ADMIN MANAGEMENT ==========
 
-async function promoteToAdmin(email) {
-    try {
+async function promoteToAdmin(email)  {try {
         // Update the account to admin role
-        const { data, error } = await supabase
+        const { data, error } = await supabaseInstance
             .from('accounts')
             .update({ role: 'admin' })
             .eq('email', email)
@@ -399,10 +391,9 @@ async function promoteToAdmin(email) {
     }
 }
 
-async function demoteFromAdmin(email) {
-    try {
+async function demoteFromAdmin(email)  {try {
         // Update the account to member role
-        const { data, error } = await supabase
+        const { data, error } = await supabaseInstance
             .from('accounts')
             .update({ role: 'member' })
             .eq('email', email)
@@ -435,7 +426,7 @@ async function createAdminAccount(email, password, name = 'Admin') {
         if (authError) throw authError;
 
         // 2. Create account with admin role
-        const { data, error } = await supabase
+        const {data, error } = await supabaseInstance
             .from('accounts')
             .insert([{
                 email: email,
@@ -459,4 +450,6 @@ async function createAdminAccount(email, password, name = 'Admin') {
 window.supabaseClient.promoteToAdmin = promoteToAdmin;
 window.supabaseClient.demoteFromAdmin = demoteFromAdmin;
 window.supabaseClient.createAdminAccount = createAdminAccount;
+
+
 
