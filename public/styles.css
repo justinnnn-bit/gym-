@@ -1820,6 +1820,10 @@ body {
    MEMBERS TABLE STYLES
 ======================================== */
 
+#members-list {
+    width: 100%;
+}
+
 .members-table-container {
     background: white;
     border-radius: 12px;
@@ -1827,6 +1831,7 @@ body {
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     max-height: 600px;
     overflow-y: auto;
+    width: 100%;
 }
 
 .members-table {
