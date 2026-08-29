@@ -1,13 +1,29 @@
 // Global variables
 let html5QrCode;
 let currentMembers = [];
-const CHECKIN_QR_TEXT = "https://darkknightfitness.vercel.app/scan?action=checkin";
-const CHECKOUT_QR_TEXT = "https://darkknightfitness.vercel.app/scan?action=checkout";
+// QR codes only work at gym location - members must scan physically at gym
+const CHECKIN_QR_TEXT = "GYM_CHECKIN_DARKKNIGHT_2024_ENTRANCE";
+const CHECKOUT_QR_TEXT = "GYM_CHECKOUT_DARKKNIGHT_2024_EXIT";
 let currentAction = null;
 let scannerActive = false;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
+    // Check if user is member trying to access admin dashboard
+    const userRole = localStorage.getItem('userRole');
+    if (userRole === 'member') {
+        // Members should not access admin dashboard
+        window.location.href = '/member-dashboard.html';
+        return;
+    }
+    
+    // Check if admin is logged in
+    const userSession = localStorage.getItem('userSession');
+    if (!userSession || userRole !== 'admin') {
+        window.location.href = '/login.html';
+        return;
+    }
+    
     initializeNavigation();
     updateDateTime();
     setInterval(updateDateTime, 1000);
@@ -288,19 +304,14 @@ function stopMainQRScanner() {
 }
 
 function onMainScanSuccess(decodedText) {
-    // Handle both URL-based and text-based QR codes
-    let action = null;
-    
-    if (decodedText.includes('action=checkin') || decodedText === CHECKIN_QR_TEXT) {
-        action = 'checkin';
-    } else if (decodedText.includes('action=checkout') || decodedText === CHECKOUT_QR_TEXT) {
-        action = 'checkout';
-    }
-    
-    if (action) {
-        currentAction = action;
+    if (decodedText === CHECKIN_QR_TEXT) {
+        currentAction = 'checkin';
         html5QrCode.pause();
-        showMemberSelectionModal(action === 'checkin' ? 'Check-In' : 'Check-Out');
+        showMemberSelectionModal('Check-In');
+    } else if (decodedText === CHECKOUT_QR_TEXT) {
+        currentAction = 'checkout';
+        html5QrCode.pause();
+        showMemberSelectionModal('Check-Out');
     } else {
         // Invalid QR code - show brief alert
         const reader = document.getElementById('reader');
