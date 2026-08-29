@@ -18,6 +18,14 @@
             box-sizing: border-box;
         }
         
+        /* Performance optimization */
+        * {
+            -webkit-transform: translateZ(0);
+            transform: translateZ(0);
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
@@ -39,6 +47,7 @@
             background-size: 50px 50px;
             animation: backgroundScroll 60s linear infinite;
             pointer-events: none;
+            will-change: transform;
         }
         
         @keyframes backgroundScroll {
@@ -65,6 +74,7 @@
             justify-content: space-between;
             align-items: center;
             border: 1px solid rgba(255, 255, 255, 0.3);
+            will-change: transform;
         }
         
         .header h1 {
@@ -120,6 +130,7 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
                         0 0 0 1px rgba(255, 255, 255, 0.5) inset;
             border: 1px solid rgba(255, 255, 255, 0.3);
+            will-change: transform;
         }
         
         .stats-sidebar {
@@ -140,13 +151,14 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
             position: relative;
             overflow: hidden;
+            will-change: transform;
         }
         
         .stat-card::before {
             content: '';
             position: absolute;
             top: -50%;
-            left: -50%;
+            left: -150%;
             width: 200%;
             height: 200%;
             background: linear-gradient(
@@ -156,11 +168,11 @@
                 rgba(255, 255, 255, 0) 100%
             );
             transform: rotate(45deg);
-            transition: all 0.6s;
+            transition: left 0.6s ease;
         }
         
         .stat-card:hover::before {
-            left: 100%;
+            left: 150%;
         }
         
         .stat-card:hover {
@@ -242,6 +254,7 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
                         0 0 0 1px rgba(255, 255, 255, 0.5) inset;
             border: 1px solid rgba(255, 255, 255, 0.3);
+            will-change: transform;
         }
         
         .activity-header {
@@ -272,8 +285,9 @@
             -webkit-backdrop-filter: blur(10px);
             border-radius: 10px;
             border-left: 3px solid #10B981;
-            transition: all 0.3s;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            will-change: transform;
         }
         
         .activity-item:hover {
@@ -406,12 +420,13 @@
             justify-content: center;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             position: relative;
             border: 2px solid transparent;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            will-change: transform;
         }
         
         .calendar-day .date-num {
@@ -547,6 +562,21 @@
             
             .month-name {
                 font-size: 1em;
+            }
+            
+            /* Reduce blur on mobile for performance */
+            .header,
+            .calendar-card,
+            .stat-card,
+            .recent-activity-card {
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+            
+            .calendar-day,
+            .activity-item {
+                backdrop-filter: blur(5px);
+                -webkit-backdrop-filter: blur(5px);
             }
         }
     </style>
