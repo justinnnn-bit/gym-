@@ -11,28 +11,14 @@ const supabaseInstance = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANO
 
 async function registerMember(name, email, phone, password) {
     try {
-        // 1. Create auth user in Supabase
-        const { data: authData, error: authError } = await supabaseInstance.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: {
-                    name: name,
-                    phone: phone
-                }
-            }
-        });
-
-        if (authError) throw authError;
-
-        // 2. Create pending account request
-        const { data, error } = await supabase
+        // Skip Supabase Auth - directly create pending account to avoid rate limits
+        const { data, error } = await supabaseInstance
             .from('pending_accounts')
             .insert([{
                 name: name,
                 email: email,
                 phone: phone,
-                password_hash: 'handled_by_supabase',
+                password_hash: 'pending_approval',
                 status: 'pending'
             }])
             .select();
