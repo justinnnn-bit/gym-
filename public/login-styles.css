@@ -383,6 +383,7 @@ body {
     
     .login-left {
         padding: 40px;
+        min-height: 300px;
     }
     
     .logo-section i {
@@ -393,8 +394,56 @@ body {
         font-size: 2em;
     }
     
+    .logo-section p {
+        font-size: 1em;
+    }
+    
     .login-right {
-        padding: 40px;
+        padding: 40px 30px;
+    }
+    
+    .form-container h2 {
+        font-size: 2em;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+    
+    .login-container {
+        border-radius: 20px;
+    }
+    
+    .login-left {
+        padding: 30px 25px;
+        min-height: 250px;
+    }
+    
+    .logo-section i {
+        font-size: 2.5em;
+    }
+    
+    .logo-section h1 {
+        font-size: 1.8em;
+    }
+    
+    .login-right {
+        padding: 35px 25px;
+    }
+    
+    .form-container h2 {
+        font-size: 1.8em;
+    }
+    
+    .subtitle {
+        font-size: 0.95em;
+    }
+    
+    .btn-primary {
+        padding: 14px;
+        font-size: 1em;
     }
 }
 
@@ -404,7 +453,31 @@ body {
     }
     
     .login-container {
-        border-radius: 20px;
+        border-radius: 16px;
+    }
+    
+    .login-left {
+        padding: 25px 20px;
+        min-height: 200px;
+    }
+    
+    .login-left::before {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .logo-section i {
+        font-size: 2em;
+        margin-bottom: 15px;
+    }
+    
+    .logo-section h1 {
+        font-size: 1.5em;
+        letter-spacing: 1px;
+    }
+    
+    .logo-section p {
+        font-size: 0.9em;
     }
     
     .login-right {
@@ -412,6 +485,118 @@ body {
     }
     
     .form-container h2 {
-        font-size: 1.8em;
+        font-size: 1.5em;
+    }
+    
+    .subtitle {
+        font-size: 0.9em;
+        margin-bottom: 25px;
+    }
+    
+    .form-group {
+        margin-bottom: 18px;
+    }
+    
+    .input-wrapper input {
+        padding: 12px 16px 12px 42px;
+        font-size: 0.95em;
+    }
+    
+    .input-wrapper i {
+        left: 14px;
+        font-size: 1em;
+    }
+    
+    .toggle-password {
+        right: 14px;
+    }
+    
+    .form-options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+    
+    .btn-primary {
+        padding: 13px;
+        font-size: 0.95em;
+        margin-bottom: 18px;
+    }
+    
+    .form-footer p,
+    .form-footer a {
+        font-size: 0.9em;
+    }
+    
+    .admin-login-link {
+        margin-top: 25px;
+        padding-top: 18px;
+    }
+    
+    .modal-content {
+        padding: 35px 25px;
+        border-radius: 20px;
+    }
+    
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 2.8em;
+        margin-bottom: 20px;
+    }
+    
+    .modal-content h2 {
+        font-size: 1.5em;
+        margin-bottom: 12px;
+    }
+    
+    .modal-content p {
+        font-size: 0.9em;
+        margin-bottom: 25px;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+    .login-left {
+        padding: 20px 15px;
+    }
+    
+    .login-right {
+        padding: 25px 15px;
+    }
+    
+    .form-container h2 {
+        font-size: 1.3em;
+    }
+    
+    .input-wrapper input {
+        font-size: 0.9em;
+    }
+}
+
+/* Landscape mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .login-container {
+        margin: 20px 0;
+    }
+    
+    .login-left {
+        min-height: 180px;
+        padding: 20px;
+    }
+    
+    .logo-section i {
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+    
+    .logo-section h1 {
+        font-size: 1.6em;
+    }
+    
+    .login-right {
+        padding: 25px 30px;
     }
 }

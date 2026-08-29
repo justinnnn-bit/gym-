@@ -1407,39 +1407,363 @@ body {
 
 /* ========== RESPONSIVE ========== */
 
+/* Mobile Overlay when sidebar is active */
+.mobile-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.mobile-overlay.active {
+    display: block;
+}
+
+/* Tablet & Mobile */
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 280px;
+    }
+    
+    .page {
+        padding: 20px;
+    }
+    
+    .qr-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .members-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
 @media (max-width: 768px) {
+    /* Sidebar */
     .sidebar {
         transform: translateX(-100%);
+        width: 280px;
     }
     
     .sidebar.active {
         transform: translateX(0);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
     }
     
+    /* Main Content */
     .main-content {
         margin-left: 0;
+        padding-top: 60px;
     }
     
+    /* Top Bar */
     .top-bar {
         left: 0;
+        height: 60px;
+        padding: 0 15px;
     }
     
     .menu-toggle {
         display: block;
     }
     
-    .stats-row {
-        grid-template-columns: 1fr;
+    .date-time {
+        display: none;
     }
     
+    .user-profile span {
+        display: none;
+    }
+    
+    .user-profile img {
+        width: 32px;
+        height: 32px;
+    }
+    
+    /* Page Header */
+    .page {
+        padding: 15px;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .page-header h1 {
+        font-size: 1.5em;
+    }
+    
+    /* Stats Grid */
+    .stats-row {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .stat-card {
+        padding: 20px;
+    }
+    
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5em;
+    }
+    
+    .stat-value {
+        font-size: 1.8em;
+    }
+    
+    /* Dashboard Content */
+    .dashboard-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    /* Cards */
+    .card {
+        padding: 20px;
+    }
+    
+    /* Attendance Table */
     .table-header,
     .attendance-row {
         grid-template-columns: 2fr 1fr 1fr;
+        gap: 10px;
+        padding: 12px 10px;
+        font-size: 0.85em;
     }
     
-    .table-header span:nth-child(n+3),
-    .attendance-row > *:nth-child(n+3) {
+    .table-header span:nth-child(n+4),
+    .attendance-row > *:nth-child(n+4) {
         display: none;
+    }
+    
+    .member-info-cell {
+        gap: 8px;
+    }
+    
+    .member-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8em;
+    }
+    
+    /* Buttons */
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Forms */
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Members Grid */
+    .members-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* QR Cards */
+    .qr-card-large {
+        padding: 25px;
+    }
+    
+    /* Modal Content */
+    .modal-content {
+        width: 95%;
+        padding: 30px 20px;
+        margin: 0 10px;
+    }
+    
+    .scanner-card {
+        padding: 25px 20px;
+    }
+    
+    /* Account Requests Table */
+    .requests-table-container {
+        overflow-x: auto;
+        max-height: none;
+    }
+    
+    .requests-table {
+        min-width: 700px;
+    }
+    
+    .requests-table th,
+    .requests-table td {
+        padding: 12px 8px;
+        font-size: 13px;
+    }
+    
+    .member-avatar-small {
+        width: 36px;
+        height: 36px;
+        font-size: 14px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .btn-table-approve,
+    .btn-table-reject {
+        width: 100%;
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    /* Member Selection Modal */
+    .member-selection-content {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+        border-radius: 0;
+        max-height: 100vh;
+    }
+    
+    .modal-header-custom {
+        padding: 20px;
+    }
+    
+    .modal-header-custom h2 {
+        font-size: 1.4em;
+    }
+    
+    .search-box-large {
+        padding: 15px 20px;
+    }
+    
+    .member-select-item {
+        padding: 15px 20px;
+        gap: 12px;
+    }
+    
+    .member-avatar-large {
+        width: 50px;
+        height: 50px;
+        font-size: 1.3em;
+    }
+    
+    .member-name-bold {
+        font-size: 1em;
+    }
+    
+    .member-meta {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    /* Custom Modals */
+    .custom-modal {
+        max-width: 90%;
+        padding: 30px 20px;
+    }
+    
+    .success-icon-large,
+    .error-icon-large {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .success-icon-large i,
+    .error-icon-large i {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Extra small mobile adjustments */
+    .page-header h1 {
+        font-size: 1.3em;
+    }
+    
+    .page-header p {
+        font-size: 0.85em;
+    }
+    
+    .stat-card {
+        padding: 15px;
+    }
+    
+    .stat-value {
+        font-size: 1.5em;
+    }
+    
+    .stat-label {
+        font-size: 0.8em;
+    }
+    
+    .card {
+        padding: 15px;
+    }
+    
+    .card-header h3 {
+        font-size: 1.1em;
+    }
+    
+    .request-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .request-actions {
+        flex-direction: column;
+    }
+    
+    .btn-approve,
+    .btn-reject {
+        width: 100%;
+    }
+    
+    .qr-card-large {
+        padding: 20px 15px;
+    }
+    
+    .qr-actions {
+        flex-direction: column;
+    }
+    
+    .btn-download,
+    .btn-print {
+        width: 100%;
+    }
+    
+    .scanner-card h2 {
+        font-size: 1.5em;
+    }
+    
+    .datetime-display {
+        flex-direction: column;
+        gap: 10px;
+        font-size: 0.9em;
+    }
+    
+    /* Make table more mobile-friendly */
+    .table-header {
+        display: none;
+    }
+    
+    .attendance-row {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 15px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .attendance-row > * {
+        display: flex !important;
     }
 }
 
@@ -1935,5 +2259,88 @@ body {
     
     .members-table {
         min-width: 800px;
+    }
+}
+
+
+/* ========================================
+   MOBILE TOUCH OPTIMIZATIONS
+======================================== */
+
+/* Minimum 44x44px touch targets for mobile */
+@media (max-width: 768px) {
+    button,
+    a.nav-item,
+    .btn-primary,
+    .btn-secondary,
+    .btn-approve,
+    .btn-reject,
+    .btn-table-approve,
+    .btn-table-reject {
+        min-height: 44px;
+        min-width: 44px;
+    }
+    
+    /* Larger tap targets for icons */
+    .close-modal,
+    .close-modal-btn,
+    .toggle-password {
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Prevent text selection on buttons */
+    button,
+    .btn-primary,
+    .btn-secondary,
+    .nav-item {
+        -webkit-tap-highlight-color: rgba(79, 70, 229, 0.2);
+        user-select: none;
+    }
+    
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Improve input fields on mobile */
+    input,
+    select,
+    textarea {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+    /* iOS Safari */
+    body {
+        -webkit-text-size-adjust: 100%;
+    }
+    
+    input {
+        -webkit-appearance: none;
+        border-radius: 12px;
+    }
+    
+    button {
+        -webkit-appearance: none;
+    }
+}
+
+/* Android specific fixes */
+@media (max-width: 768px) {
+    * {
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    }
+    
+    input:focus,
+    select:focus,
+    textarea:focus {
+        font-size: 16px; /* Prevents zoom on Android */
     }
 }
