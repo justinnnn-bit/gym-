@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     generateQRCodes();
     loadDashboard();
     loadMembers();
+    loadAccountRequests(); // Load pending count on startup
     setupEventListeners();
     
     // Auto-start QR scanner when on attendance page
@@ -722,9 +723,25 @@ async function loadAccountRequests() {
         // Use Supabase client
         const pendingAccounts = await window.supabaseClient.getPendingAccounts();
         
+        // Update notification badge
+        updatePendingCountBadge(pendingAccounts.length);
+        
         displayAccountRequests(pendingAccounts);
     } catch (error) {
         console.error('Error loading account requests:', error);
+    }
+}
+
+// Update the pending count badge in sidebar
+function updatePendingCountBadge(count) {
+    const badge = document.getElementById('pending-count-badge');
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
     }
 }
 
