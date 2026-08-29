@@ -21,6 +21,17 @@ window.addEventListener('DOMContentLoaded', async () => {
     await loadAttendance();
     renderCalendar();
     updateStats();
+    
+    // Check if coming from quick-scan (attendance just recorded)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('updated') === 'true') {
+        // Reload attendance to show latest
+        setTimeout(async () => {
+            await loadAttendance();
+            renderCalendar();
+            updateStats();
+        }, 500);
+    }
 });
 
 async function loadAttendance() {

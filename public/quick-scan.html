@@ -296,6 +296,37 @@
                     return;
                 }
                 
+                // Check today's attendance status first
+                const todayAttendance = await window.supabaseClient.getMemberAttendance(user.id);
+                const today = new Date().toISOString().split('T')[0];
+                
+                const todayRecords = todayAttendance.filter(record => {
+                    const recordDate = new Date(record.check_time).toISOString().split('T')[0];
+                    return recordDate === today;
+                });
+                
+                const hasCheckedIn = todayRecords.some(r => r.action === 'checkin');
+                const hasCheckedOut = todayRecords.some(r => r.action === 'checkout');
+                
+                console.log('Today attendance:', { hasCheckedIn, hasCheckedOut });
+                
+                // Validation logic
+                if (action === 'checkin') {
+                    if (hasCheckedIn) {
+                        showError('Already Checked In', 'You have already checked in today! Your attendance is recorded. Have a great workout! 💪');
+                        return;
+                    }
+                } else if (action === 'checkout') {
+                    if (!hasCheckedIn) {
+                        showError('Check-In First!', 'Oops! You need to check-in first before checking out. Please scan the Check-In QR code at the entrance.');
+                        return;
+                    }
+                    if (hasCheckedOut) {
+                        showError('Already Checked Out', 'You have already checked out today! See you tomorrow! 👋');
+                        return;
+                    }
+                }
+                
                 // Record attendance automatically for this logged-in member
                 console.log('Calling recordAttendance...');
                 const result = await window.supabaseClient.recordAttendance(user.id, action);
@@ -321,6 +352,13 @@
             const actionIcon = action === 'checkin' ? 'sign-in-alt' : 'sign-out-alt';
             const now = new Date();
             
+            // Different messages for check-in vs check-out
+            const message = action === 'checkin' 
+                ? 'Welcome to DarkNight Fitness! Your attendance has been recorded. Have an amazing workout! 💪🔥'
+                : 'Great job today! Your check-out is recorded. See you tomorrow! 👋😊';
+            
+            const emoji = action === 'checkin' ? '🎯' : '✨';
+            
             container.innerHTML = `
                 <div class="success-icon">
                     <i class="fas fa-check"></i>
@@ -329,12 +367,12 @@
                     <i class="fas fa-${actionIcon}"></i>
                     ${actionLabel} Successful!
                 </div>
-                <h1>Welcome, ${user.name}! 👋</h1>
+                <h1>${emoji} ${user.name}!</h1>
                 <div class="member-info">
                     <div class="member-name">${user.name}</div>
                     <div class="member-email">${user.email}</div>
                 </div>
-                <p>Your ${action === 'checkin' ? 'check-in' : 'check-out'} has been recorded successfully. Have a great workout!</p>
+                <p>${message}</p>
                 <div class="time-info">
                     <i class="far fa-clock"></i>
                     <span>${now.toLocaleString('en-US', { 
@@ -347,7 +385,7 @@
                     })}</span>
                 </div>
                 <br><br>
-                <a href="/member-dashboard.html" class="btn-primary">
+                <a href="/member-dashboard.html?updated=true" class="btn-primary">
                     <i class="fas fa-calendar-check"></i>
                     View My Attendance
                 </a>
