@@ -508,3 +508,66 @@ async function deleteMember(memberId) {
 
 // Add to exported functions
 window.supabaseClient.deleteMember = deleteMember;
+
+// Update Member Profile
+async function updateMemberProfile(memberId, updates) {
+    try {
+        const { data, error } = await supabaseInstance
+            .from('members')
+            .update({
+                name: updates.name,
+                phone: updates.phone
+            })
+            .eq('id', memberId)
+            .select();
+
+        if (error) throw error;
+
+        // Also update the account name if exists
+        await supabaseInstance
+            .from('accounts')
+            .update({ name: updates.name })
+            .eq('member_id', memberId);
+
+        return { success: true, data: data[0] };
+    } catch (error) {
+        console.error('Error updating member profile:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// Change Password
+async function changePassword(memberId, currentPassword, newPassword) {
+    try {
+        // Get member's account
+        const { data: account, error: fetchError } = await supabaseInstance
+            .from('accounts')
+            .select('password')
+            .eq('member_id', memberId)
+            .single();
+
+        if (fetchError) throw fetchError;
+
+        // Verify current password
+        if (account.password !== currentPassword) {
+            return { success: false, error: 'Current password is incorrect' };
+        }
+
+        // Update password
+        const { error: updateError } = await supabaseInstance
+            .from('accounts')
+            .update({ password: newPassword })
+            .eq('member_id', memberId);
+
+        if (updateError) throw updateError;
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error changing password:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// Export new functions
+window.supabaseClient.updateMemberProfile = updateMemberProfile;
+window.supabaseClient.changePassword = changePassword;

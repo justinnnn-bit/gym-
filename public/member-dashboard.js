@@ -3,6 +3,7 @@
 let currentDate = new Date();
 let memberAttendance = [];
 let memberId = null;
+let memberData = null;
 
 // Check authentication
 window.addEventListener('DOMContentLoaded', async () => {
@@ -16,11 +17,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     
     const user = JSON.parse(userSession);
     memberId = user.id;
-    document.getElementById('member-name').textContent = user.name;
+    memberData = user;
+    
+    // Update sidebar profile
+    const initial = user.name.charAt(0).toUpperCase();
+    document.getElementById('member-avatar').textContent = initial;
+    document.getElementById('member-name-sidebar').textContent = user.name;
+    document.getElementById('member-email-sidebar').textContent = user.email;
     
     await loadAttendance();
+    await loadMemberDetails();
     renderCalendar();
     updateStats();
+    loadMembershipPage();
+    loadSettingsPage();
     
     // Check if coming from quick-scan (attendance just recorded)
     const urlParams = new URLSearchParams(window.location.search);
@@ -40,6 +50,18 @@ async function loadAttendance() {
         memberAttendance = attendance || [];
     } catch (error) {
         console.error('Error loading attendance:', error);
+    }
+}
+
+async function loadMemberDetails() {
+    try {
+        const members = await window.supabaseClient.getAllMembers();
+        const member = members.find(m => m.id === memberId);
+        if (member) {
+            memberData = member;
+        }
+    } catch (error) {
+        console.error('Error loading member details:', error);
     }
 }
 
@@ -174,12 +196,48 @@ function updateStats() {
         ? Math.round((presentDays / totalWorkingDays) * 100) 
         : 0;
     
+    // Calculate current streak
+    const currentStreak = calculateStreak();
+    
     document.getElementById('total-present').textContent = presentDays;
     document.getElementById('total-visits').textContent = totalVisits;
     document.getElementById('attendance-rate').textContent = attendanceRate + '%';
+    document.getElementById('current-streak').textContent = currentStreak;
     
     // Update recent activity
     updateRecentActivity();
+}
+
+function calculateStreak() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    let streak = 0;
+    let checkDate = new Date(today);
+    
+    while (true) {
+        // Skip Thursdays (gym closed)
+        if (checkDate.getDay() === 4) {
+            checkDate.setDate(checkDate.getDate() - 1);
+            continue;
+        }
+        
+        const dateStr = checkDate.toISOString().split('T')[0];
+        const hasAttendance = memberAttendance.some(record => {
+            const recordDate = new Date(record.check_time).toISOString().split('T')[0];
+            return recordDate === dateStr && record.action === 'checkin';
+        });
+        
+        if (!hasAttendance) break;
+        
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+        
+        // Stop if we've gone back too far
+        if (streak > 365) break;
+    }
+    
+    return streak;
 }
 
 function updateRecentActivity() {
@@ -243,3 +301,104 @@ function logout() {
     localStorage.removeItem('userRole');
     window.location.href = '/login.html';
 }
+
+// Load Membership Page
+function loadMembershipPage() {
+    if (!memberData) return;
+    
+    const membershipType = memberData.membership_type || 'Basic';
+    const joinDate = memberData.join_date 
+        ? new Date(memberData.join_date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+        : 'N/A';
+    
+    // Update membership badge
+    const badge = document.getElementById('membership-badge');
+    badge.textContent = membershipType;
+    badge.className = 'membership-badge ' + membershipType.toLowerCase();
+    
+    // Update membership details
+    document.getElementById('member-name-membership').textContent = memberData.name;
+    document.getElementById('member-email-membership').textContent = memberData.email;
+    document.getElementById('member-phone-membership').textContent = memberData.phone || 'N/A';
+    document.getElementById('join-date-membership').textContent = joinDate;
+    document.getElementById('membership-type').textContent = membershipType;
+    document.getElementById('member-id-display').textContent = '#' + memberData.id.substring(0, 8).toUpperCase();
+}
+
+// Load Settings Page
+function loadSettingsPage() {
+    if (!memberData) return;
+    
+    document.getElementById('settings-name').value = memberData.name;
+    document.getElementById('settings-email').value = memberData.email;
+    document.getElementById('settings-phone').value = memberData.phone || '';
+}
+
+// Profile form submit
+document.getElementById('profile-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const name = document.getElementById('settings-name').value;
+    const phone = document.getElementById('settings-phone').value;
+    
+    try {
+        // Update member profile (you'll need to implement this in supabase-client.js)
+        const result = await window.supabaseClient.updateMemberProfile(memberId, { name, phone });
+        
+        if (result.success) {
+            alert('Profile updated successfully!');
+            memberData.name = name;
+            memberData.phone = phone;
+            
+            // Update sidebar
+            document.getElementById('member-name-sidebar').textContent = name;
+            
+            // Update session
+            const session = JSON.parse(localStorage.getItem('userSession'));
+            session.name = name;
+            localStorage.setItem('userSession', JSON.stringify(session));
+            
+            // Reload membership page
+            loadMembershipPage();
+        } else {
+            alert('Failed to update profile: ' + (result.error || 'Unknown error'));
+        }
+    } catch (error) {
+        alert('Error updating profile');
+        console.error(error);
+    }
+});
+
+// Password form submit
+document.getElementById('password-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const currentPassword = document.getElementById('current-password').value;
+    const newPassword = document.getElementById('new-password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
+    
+    if (newPassword !== confirmPassword) {
+        alert('New passwords do not match!');
+        return;
+    }
+    
+    if (newPassword.length < 6) {
+        alert('New password must be at least 6 characters long!');
+        return;
+    }
+    
+    try {
+        // Change password (you'll need to implement this in supabase-client.js)
+        const result = await window.supabaseClient.changePassword(memberId, currentPassword, newPassword);
+        
+        if (result.success) {
+            alert('Password changed successfully!');
+            document.getElementById('password-form').reset();
+        } else {
+            alert('Failed to change password: ' + (result.error || 'Unknown error'));
+        }
+    } catch (error) {
+        alert('Error changing password');
+        console.error(error);
+    }
+});
