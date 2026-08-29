@@ -823,21 +823,30 @@ function displayAccountRequests(accounts) {
 
 // Approve account
 async function approveAccount(accountId, name) {
-    const membershipType = prompt(`Approve ${name}?\n\nSelect membership type:\n- Basic\n- Premium\n- VIP\n\nEnter type:`, 'Basic');
+    // Show custom approval modal
+    showApprovalModal(accountId, name);
+}
+
+function showApprovalModal(accountId, name) {
+    const modal = document.getElementById('custom-approval-modal');
+    document.querySelector('#approval-member-name strong').textContent = name;
+    modal.classList.add('show');
     
-    if (!membershipType) return;
-    
-    if (!['Basic', 'Premium', 'VIP'].includes(membershipType)) {
-        alert('Invalid membership type. Please enter Basic, Premium, or VIP.');
-        return;
-    }
-    
+    // Set up confirm button
+    document.getElementById('confirm-approve-btn').onclick = async () => {
+        const selectedType = document.querySelector('input[name="membership-type"]:checked').value;
+        closeCustomModal('custom-approval-modal');
+        await processApproval(accountId, name, selectedType);
+    };
+}
+
+async function processApproval(accountId, name, membershipType) {
     try {
         // Use Supabase client
         const result = await window.supabaseClient.approveAccount(accountId, membershipType);
         
         if (result.success) {
-            alert(`✅ Account approved! ${name} can now login and access the gym.`);
+            showSuccessModal(`Account approved! ${name} can now login and access the gym.`);
             loadAccountRequests();
             loadMembers();
             loadDashboard();
@@ -851,23 +860,58 @@ async function approveAccount(accountId, name) {
 
 // Reject account
 async function rejectAccount(accountId, name) {
-    const confirm = window.confirm(`Are you sure you want to reject the account request from ${name}?`);
-    
-    if (!confirm) return;
-    
-    try {
-        // Use Supabase client
-        const result = await window.supabaseClient.rejectAccount(accountId);
-        
-        if (result.success) {
-            alert(`Account request from ${name} has been rejected.`);
-            loadAccountRequests();
-        } else {
-            alert(result.error || 'Failed to reject account');
+    showConfirmModal(
+        `Are you sure you want to reject the account request from ${name}?`,
+        async () => {
+            try {
+                const result = await window.supabaseClient.rejectAccount(accountId);
+                
+                if (result.success) {
+                    showSuccessModal(`Account request from ${name} has been rejected.`);
+                    loadAccountRequests();
+                } else {
+                    alert(result.error || 'Failed to reject account');
+                }
+            } catch (error) {
+                alert('Error rejecting account');
+            }
         }
-    } catch (error) {
-        alert('Error rejecting account');
-    }
+    );
+}
+
+// Custom modal functions
+function showApprovalModal(accountId, name) {
+    const modal = document.getElementById('custom-approval-modal');
+    document.querySelector('#approval-member-name strong').textContent = name;
+    modal.classList.add('show');
+    
+    document.getElementById('confirm-approve-btn').onclick = async () => {
+        const selectedType = document.querySelector('input[name="membership-type"]:checked').value;
+        closeCustomModal('custom-approval-modal');
+        await processApproval(accountId, name, selectedType);
+    };
+}
+
+function showSuccessModal(message) {
+    const modal = document.getElementById('custom-success-modal');
+    document.getElementById('success-modal-message').textContent = message;
+    modal.classList.add('show');
+}
+
+function showConfirmModal(message, onConfirm) {
+    const modal = document.getElementById('custom-confirm-modal');
+    document.getElementById('confirm-modal-message').textContent = message;
+    modal.classList.add('show');
+    
+    document.getElementById('confirm-action-btn').onclick = () => {
+        closeCustomModal('custom-confirm-modal');
+        onConfirm();
+    };
+}
+
+function closeCustomModal(modalId) {
+    const modal = document.getElementById(modalId);
+    modal.classList.remove('show');
 }
 
 // Check authentication on page load

@@ -404,3 +404,79 @@
     <script src="app.js"></script>
 </body>
 </html>
+
+
+    <!-- Custom Modal for Approval -->
+    <div id="custom-approval-modal" class="modal">
+        <div class="modal-content custom-modal">
+            <div class="modal-header-custom">
+                <h2>Approve Member</h2>
+                <button class="close-modal" onclick="closeCustomModal('custom-approval-modal')">&times;</button>
+            </div>
+            <div class="modal-body-custom">
+                <p id="approval-member-name">Approve <strong></strong>?</p>
+                <p class="modal-subtitle">Select membership type:</p>
+                <div class="membership-options">
+                    <label class="membership-option">
+                        <input type="radio" name="membership-type" value="Basic" checked>
+                        <span class="option-card">
+                            <i class="fas fa-star"></i>
+                            <strong>Basic</strong>
+                        </span>
+                    </label>
+                    <label class="membership-option">
+                        <input type="radio" name="membership-type" value="Premium">
+                        <span class="option-card">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <strong>Premium</strong>
+                        </span>
+                    </label>
+                    <label class="membership-option">
+                        <input type="radio" name="membership-type" value="VIP">
+                        <span class="option-card">
+                            <i class="fas fa-crown"></i>
+                            <strong>VIP</strong>
+                        </span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn-secondary" onclick="closeCustomModal('custom-approval-modal')">Cancel</button>
+                <button class="btn-primary" id="confirm-approve-btn">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Success Modal -->
+    <div id="custom-success-modal" class="modal">
+        <div class="modal-content custom-modal success">
+            <div class="success-icon-large">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 id="success-modal-title">Success!</h2>
+            <p id="success-modal-message"></p>
+            <button class="btn-primary" onclick="closeCustomModal('custom-success-modal')">OK</button>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="custom-confirm-modal" class="modal">
+        <div class="modal-content custom-modal">
+            <div class="modal-header-custom warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h2>Confirm Action</h2>
+            </div>
+            <div class="modal-body-custom">
+                <p id="confirm-modal-message"></p>
+            </div>
+            <div class="modal-footer-custom">
+                <button class="btn-secondary" onclick="closeCustomModal('custom-confirm-modal')">Cancel</button>
+                <button class="btn-danger" id="confirm-action-btn">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+            </div>
+        </div>
+    </div>
