@@ -377,19 +377,11 @@ function selectMemberForAttendance(memberId, memberName) {
 // Process attendance
 async function processAttendance(memberId, memberName) {
     try {
-        const response = await fetch('/api/attendance', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                memberId: memberId,
-                action: currentAction
-            })
-        });
+        // Use Supabase client
+        const result = await window.supabaseClient.recordAttendance(memberId, currentAction);
         
-        const data = await response.json();
-        
-        if (response.ok) {
-            showSuccessModal(data.member, data.attendance);
+        if (result.success) {
+            showSuccessModal(result.member, result.attendance);
             
             // Resume scanner after 3 seconds
             setTimeout(() => {
@@ -398,7 +390,7 @@ async function processAttendance(memberId, memberName) {
                 }
             }, 3000);
         } else {
-            alert(data.error || 'Error recording attendance');
+            alert(result.error || 'Error recording attendance');
             // Resume scanner
             if (html5QrCode) {
                 html5QrCode.resume();
@@ -445,27 +437,15 @@ function showSuccessModal(member, attendance) {
 // Load Dashboard
 async function loadDashboard() {
     try {
-        const [membersRes, attendanceRes, todayRes] = await Promise.all([
-            fetch('/api/members'),
-            fetch('/api/attendance'),
-            fetch('/api/attendance/today/all')
-        ]);
-        
-        const members = await membersRes.json();
-        const allAttendance = await attendanceRes.json();
-        const todayAttendance = await todayRes.json();
-        
-        // Calculate stats
-        const todayCheckins = todayAttendance.filter(a => a.action === 'checkin');
-        const todayCheckouts = todayAttendance.filter(a => a.action === 'checkout');
-        const currentlyIn = todayCheckins.length - todayCheckouts.length;
-        const absent = members.length - todayCheckins.length;
+        // Use Supabase client
+        const stats = await window.supabaseClient.getDashboardStats();
+        const todayAttendance = await window.supabaseClient.getTodayAttendance();
         
         // Update dashboard stats
-        document.getElementById('total-members-dash').textContent = members.length;
-        document.getElementById('present-today-dash').textContent = todayCheckins.length;
-        document.getElementById('absent-today-dash').textContent = absent;
-        document.getElementById('checked-out-dash').textContent = currentlyIn;
+        document.getElementById('total-members-dash').textContent = stats.totalMembers;
+        document.getElementById('present-today-dash').textContent = stats.todayCheckins;
+        document.getElementById('absent-today-dash').textContent = stats.totalMembers - stats.todayCheckins;
+        document.getElementById('checked-out-dash').textContent = stats.currentlyInGym;
         
         // Display today's attendance
         displayTodayAttendance(todayAttendance);
@@ -514,8 +494,8 @@ function displayTodayAttendance(attendance) {
 // Load Members
 async function loadMembers() {
     try {
-        const response = await fetch('/api/members');
-        currentMembers = await response.json();
+        // Use Supabase client
+        currentMembers = await window.supabaseClient.getAllMembers();
         displayMembers();
     } catch (error) {
         console.error('Error loading members:', error);
@@ -554,13 +534,10 @@ async function handleAddMember(e) {
     };
     
     try {
-        const response = await fetch('/api/members', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(memberData)
-        });
+        // Use Supabase client
+        const result = await window.supabaseClient.addMember(memberData);
         
-        if (response.ok) {
+        if (result.success) {
             alert('Member added successfully!');
             document.getElementById('add-member-form').reset();
             const modal = document.getElementById('add-member-modal');
@@ -569,7 +546,7 @@ async function handleAddMember(e) {
             loadMembers();
             loadDashboard();
         } else {
-            alert('Failed to add member');
+            alert(result.error || 'Failed to add member');
         }
     } catch (error) {
         alert('Error adding member');
@@ -585,13 +562,9 @@ if (addMemberForm) {
 // Load Reports
 async function loadReports() {
     try {
-        const [attendanceRes, todayRes] = await Promise.all([
-            fetch('/api/attendance'),
-            fetch('/api/attendance/today/all')
-        ]);
-        
-        const allAttendance = await attendanceRes.json();
-        const todayAttendance = await todayRes.json();
+        // Use Supabase client
+        const allAttendance = await window.supabaseClient.getAllAttendance();
+        const todayAttendance = await window.supabaseClient.getTodayAttendance();
         
         const todayCheckins = todayAttendance.filter(a => a.action === 'checkin').length;
         const todayCheckouts = todayAttendance.filter(a => a.action === 'checkout').length;
@@ -747,8 +720,8 @@ function downloadQRLarge(type) {
 // Load pending account requests
 async function loadAccountRequests() {
     try {
-        const response = await fetch('/api/auth/pending');
-        const pendingAccounts = await response.json();
+        // Use Supabase client
+        const pendingAccounts = await window.supabaseClient.getPendingAccounts();
         
         displayAccountRequests(pendingAccounts);
     } catch (error) {
@@ -829,19 +802,16 @@ async function approveAccount(accountId, name) {
     }
     
     try {
-        const response = await fetch(`/api/auth/approve/${accountId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ membershipType })
-        });
+        // Use Supabase client
+        const result = await window.supabaseClient.approveAccount(accountId, membershipType);
         
-        if (response.ok) {
+        if (result.success) {
             alert(`✅ Account approved! ${name} can now login and access the gym.`);
             loadAccountRequests();
             loadMembers();
             loadDashboard();
         } else {
-            alert('Failed to approve account');
+            alert(result.error || 'Failed to approve account');
         }
     } catch (error) {
         alert('Error approving account');
@@ -855,15 +825,14 @@ async function rejectAccount(accountId, name) {
     if (!confirm) return;
     
     try {
-        const response = await fetch(`/api/auth/reject/${accountId}`, {
-            method: 'DELETE'
-        });
+        // Use Supabase client
+        const result = await window.supabaseClient.rejectAccount(accountId);
         
-        if (response.ok) {
+        if (result.success) {
             alert(`Account request from ${name} has been rejected.`);
             loadAccountRequests();
         } else {
-            alert('Failed to reject account');
+            alert(result.error || 'Failed to reject account');
         }
     } catch (error) {
         alert('Error rejecting account');
