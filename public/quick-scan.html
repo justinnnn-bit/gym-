@@ -313,16 +313,16 @@
                 // Validation logic
                 if (action === 'checkin') {
                     if (hasCheckedIn) {
-                        showError('Already Checked In', 'You have already checked in today! Your attendance is recorded. Have a great workout! 💪');
+                        showError('Already Checked In! ✅', 'You have already checked in today! Your attendance is recorded. Have a great workout! 💪');
                         return;
                     }
                 } else if (action === 'checkout') {
                     if (!hasCheckedIn) {
-                        showError('Check-In First!', 'Oops! You need to check-in first before checking out. Please scan the Check-In QR code at the entrance.');
+                        showError('Check-In First! ⚠️', 'Oops! You need to check-in first before checking out. Please go to the gym entrance and scan the Check-In QR code.');
                         return;
                     }
                     if (hasCheckedOut) {
-                        showError('Already Checked Out', 'You have already checked out today! See you tomorrow! 👋');
+                        showError('Already Checked Out! 👋', 'You have already checked out today! Great job! See you tomorrow! 💪');
                         return;
                     }
                 }
@@ -394,20 +394,31 @@
         
         function showError(title, message) {
             const container = document.getElementById('scanContainer');
+            const userSession = localStorage.getItem('userSession');
+            const isLoggedIn = !!userSession;
+            
+            // If user is logged in, show different buttons
+            const buttonsHTML = isLoggedIn
+                ? `
+                    <a href="/member-dashboard.html" class="btn-primary">
+                        <i class="fas fa-home"></i>
+                        Go to My Dashboard
+                    </a>
+                `
+                : `
+                    <a href="/login.html" class="btn-primary">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login to Continue
+                    </a>
+                `;
+            
             container.innerHTML = `
                 <div class="error-icon">
                     <i class="fas fa-exclamation-circle"></i>
                 </div>
                 <h1>${title}</h1>
                 <p>${message}</p>
-                <a href="/login.html" class="btn-primary">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Login to Continue
-                </a>
-                <a href="/member-dashboard.html" class="btn-secondary">
-                    <i class="fas fa-home"></i>
-                    Go to Dashboard
-                </a>
+                ${buttonsHTML}
             `;
         }
         
