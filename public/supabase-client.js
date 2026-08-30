@@ -540,13 +540,18 @@ async function updateMemberProfile(memberId, updates) {
 async function changePassword(memberId, currentPassword, newPassword) {
     try {
         // Get member's account
-        const { data: account, error: fetchError } = await supabaseInstance
+        const { data: accounts, error: fetchError } = await supabaseInstance
             .from('accounts')
-            .select('password')
-            .eq('member_id', memberId)
-            .single();
+            .select('password, email')
+            .eq('member_id', memberId);
 
         if (fetchError) throw fetchError;
+
+        if (!accounts || accounts.length === 0) {
+            return { success: false, error: 'Account not found' };
+        }
+
+        const account = accounts[0];
 
         // Verify current password
         if (account.password !== currentPassword) {
