@@ -544,7 +544,7 @@ async function changePassword(memberId, currentPassword, newPassword) {
         // Get member's account
         const { data: accounts, error: fetchError } = await supabaseInstance
             .from('accounts')
-            .select('password, email')
+            .select('password_hash, email')
             .eq('member_id', memberId);
 
         console.log('Account lookup result:', { accounts, fetchError });
@@ -563,7 +563,7 @@ async function changePassword(memberId, currentPassword, newPassword) {
         console.log('Found account for email:', account.email);
 
         // Verify current password
-        if (account.password !== currentPassword) {
+        if (account.password_hash !== currentPassword) {
             console.log('Password mismatch');
             return { success: false, error: 'Current password is incorrect' };
         }
@@ -571,7 +571,7 @@ async function changePassword(memberId, currentPassword, newPassword) {
         // Update password
         const { error: updateError } = await supabaseInstance
             .from('accounts')
-            .update({ password: newPassword })
+            .update({ password_hash: newPassword })
             .eq('member_id', memberId);
 
         if (updateError) {
