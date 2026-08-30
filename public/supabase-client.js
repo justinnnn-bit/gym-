@@ -18,7 +18,7 @@ async function registerMember(name, email, phone, password) {
                 name: name,
                 email: email,
                 phone: phone,
-                password_hash: 'pending_approval',
+                password_hash: password, // Store the actual password for now (in production, hash it)
                 status: 'pending'
             }])
             .select();
