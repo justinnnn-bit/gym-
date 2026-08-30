@@ -388,8 +388,20 @@ document.getElementById('password-form')?.addEventListener('submit', async (e) =
     }
     
     try {
-        // Change password (you'll need to implement this in supabase-client.js)
+        // Check if function exists
+        if (typeof window.supabaseClient.changePassword !== 'function') {
+            alert('Password change function not available. Please refresh the page and try again.');
+            console.error('changePassword function not found on window.supabaseClient');
+            return;
+        }
+        
+        // Change password
         const result = await window.supabaseClient.changePassword(memberId, currentPassword, newPassword);
+        
+        if (!result) {
+            alert('Failed to change password: No response from server');
+            return;
+        }
         
         if (result.success) {
             alert('Password changed successfully!');
@@ -398,7 +410,7 @@ document.getElementById('password-form')?.addEventListener('submit', async (e) =
             alert('Failed to change password: ' + (result.error || 'Unknown error'));
         }
     } catch (error) {
-        alert('Error changing password');
-        console.error(error);
+        alert('Error changing password: ' + error.message);
+        console.error('Password change error:', error);
     }
 });

@@ -538,6 +538,8 @@ async function updateMemberProfile(memberId, updates) {
 
 // Change Password
 async function changePassword(memberId, currentPassword, newPassword) {
+    console.log('changePassword called with memberId:', memberId);
+    
     try {
         // Get member's account
         const { data: accounts, error: fetchError } = await supabaseInstance
@@ -545,16 +547,24 @@ async function changePassword(memberId, currentPassword, newPassword) {
             .select('password, email')
             .eq('member_id', memberId);
 
-        if (fetchError) throw fetchError;
+        console.log('Account lookup result:', { accounts, fetchError });
+
+        if (fetchError) {
+            console.error('Fetch error:', fetchError);
+            throw fetchError;
+        }
 
         if (!accounts || accounts.length === 0) {
-            return { success: false, error: 'Account not found' };
+            console.error('No account found for member_id:', memberId);
+            return { success: false, error: 'Account not found. Please contact support.' };
         }
 
         const account = accounts[0];
+        console.log('Found account for email:', account.email);
 
         // Verify current password
         if (account.password !== currentPassword) {
+            console.log('Password mismatch');
             return { success: false, error: 'Current password is incorrect' };
         }
 
@@ -564,8 +574,12 @@ async function changePassword(memberId, currentPassword, newPassword) {
             .update({ password: newPassword })
             .eq('member_id', memberId);
 
-        if (updateError) throw updateError;
+        if (updateError) {
+            console.error('Update error:', updateError);
+            throw updateError;
+        }
 
+        console.log('Password updated successfully');
         return { success: true };
     } catch (error) {
         console.error('Error changing password:', error);
