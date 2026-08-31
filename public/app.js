@@ -522,8 +522,9 @@ function displayTodayAttendance(attendance) {
     const latest = attendance.slice(-5).reverse();
     
     container.innerHTML = latest.map(record => {
-        const initial = record.memberName.charAt(0).toUpperCase();
-        const time = record.checkInTime || new Date(record.date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        const memberName = record.members?.name || 'Unknown';
+        const initial = memberName.charAt(0).toUpperCase();
+        const time = new Date(record.check_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         const actionClass = record.action === 'checkin' ? 'checkin' : 'checkout';
         const actionText = record.action === 'checkin' ? 'Checked In' : 'Checked Out';
         
@@ -531,9 +532,9 @@ function displayTodayAttendance(attendance) {
             <div class="attendance-row">
                 <div class="member-info-cell">
                     <div class="member-avatar">${initial}</div>
-                    <span class="member-name">${record.memberName}</span>
+                    <span class="member-name">${memberName}</span>
                 </div>
-                <span>${record.memberId || 'N/A'}</span>
+                <span>${record.member_id?.slice(-4) || 'N/A'}</span>
                 <span>${record.action === 'checkin' ? time : '-'}</span>
                 <span>${record.action === 'checkout' ? time : '-'}</span>
                 <span class="status-badge ${actionClass}">
