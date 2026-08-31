@@ -34,7 +34,12 @@ export default async function handler(req, res) {
     return res.status(200).json({ 
       success: true, 
       message: 'Email sent successfully',
-      id: response.id 
+      id: response.id,
+      debug: {
+        to: to,
+        from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
+        hasApiKey: !!process.env.RESEND_API_KEY
+      }
     });
 
   } catch (error) {
