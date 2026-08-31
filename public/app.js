@@ -394,7 +394,7 @@ function displayMembersInModal() {
                 <div class="member-details-full">
                     <div class="member-name-bold">${member.name}</div>
                     <div class="member-meta">
-                        <span class="member-type-badge">${member.membershipType}</span>
+                        <span class="member-type-badge">${member.membership_type || 'Basic'}</span>
                         <span class="member-id">ID: ${member.id.slice(-4)}</span>
                     </div>
                 </div>
