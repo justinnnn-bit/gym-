@@ -68,8 +68,8 @@ yes
             position: fixed;
             left: 0;
             top: 0;
-            bottom: 0;
             width: 280px;
+            height: 100vh;
             background: linear-gradient(180deg, rgba(51, 65, 85, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
@@ -81,7 +81,7 @@ yes
             flex-direction: column;
             overflow-y: auto;
             box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
-            contain: layout;
+            contain: strict;
         }
         
         .sidebar.closed {
