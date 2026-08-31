@@ -414,3 +414,91 @@ document.getElementById('password-form')?.addEventListener('submit', async (e) =
         console.error('Password change error:', error);
     }
 });
+
+// Sidebar toggle for mobile
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    sidebar.classList.toggle('open');
+}
+
+// Custom alert function
+function showAlert(message, type = 'success', title = null) {
+    const modal = document.getElementById('custom-alert-modal');
+    const icon = document.getElementById('alert-icon');
+    const titleEl = document.getElementById('alert-title');
+    const messageEl = document.getElementById('alert-message');
+    
+    // Set icon based on type
+    icon.className = 'modal-icon ' + type;
+    if (type === 'success') {
+        icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+        titleEl.textContent = title || 'Success!';
+    } else if (type === 'error') {
+        icon.innerHTML = '<i class="fas fa-exclamation-circle"></i>';
+        titleEl.textContent = title || 'Error';
+    } else if (type === 'warning') {
+        icon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        titleEl.textContent = title || 'Warning';
+    }
+    
+    messageEl.textContent = message;
+    modal.style.display = 'flex';
+}
+
+function closeAlertModal() {
+    document.getElementById('custom-alert-modal').style.display = 'none';
+}
+
+// Update current date
+function updateCurrentDate() {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const dateStr = new Date().toLocaleDateString('en-US', options);
+    const dateEl = document.getElementById('current-date');
+    if (dateEl) {
+        dateEl.textContent = dateStr;
+    }
+}
+
+// Page navigation
+function initializeNavigation() {
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', (e) => {
+            if (item.onclick) return; // Skip logout button
+            
+            e.preventDefault();
+            const page = item.getAttribute('data-page');
+            
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+            
+            // Update active page
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(page).classList.add('active');
+            
+            // Update page title
+            const titles = {
+                'dashboard': { title: 'Dashboard', subtitle: 'Your gym stats overview' },
+                'calendar': { title: 'My Calendar', subtitle: 'Track your gym attendance' },
+                'membership': { title: 'Membership', subtitle: 'Your membership details' },
+                'settings': { title: 'Settings', subtitle: 'Manage your account' }
+            };
+            
+            const pageInfo = titles[page];
+            document.getElementById('page-title-text').textContent = pageInfo.title;
+            document.getElementById('page-subtitle-text').textContent = pageInfo.subtitle;
+            
+            // Close sidebar on mobile after navigation
+            if (window.innerWidth <= 1024) {
+                document.getElementById('sidebar').classList.remove('open');
+            }
+        });
+    });
+}
+
+// Initialize after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    updateCurrentDate();
+    initializeNavigation();
+});
