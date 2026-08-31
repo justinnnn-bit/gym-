@@ -739,18 +739,17 @@ async function updateMembershipExpiry(memberId) {
     }
     
     try {
-        const { data, error } = await window.supabaseClient.supabaseInstance
-            .from('members')
-            .update({ membership_expiry: expiryDate })
-            .eq('id', memberId);
+        const result = await window.supabaseClient.updateMemberExpiry(memberId, expiryDate);
         
-        if (error) throw error;
-        
-        // Show success message
-        showSuccessMessage('Membership expiry updated successfully!');
-        
-        // Reload members to update the status badge
-        await loadMembers();
+        if (result.success) {
+            // Show success message
+            showSuccessMessage('Membership expiry updated successfully!');
+            
+            // Reload members to update the status badge
+            await loadMembers();
+        } else {
+            alert('Failed to update membership expiry: ' + result.error);
+        }
         
     } catch (error) {
         console.error('Error updating expiry:', error);

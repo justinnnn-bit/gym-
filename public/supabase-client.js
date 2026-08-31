@@ -599,3 +599,24 @@ async function changePassword(memberId, currentPassword, newPassword) {
 // Export new functions
 window.supabaseClient.updateMemberProfile = updateMemberProfile;
 window.supabaseClient.changePassword = changePassword;
+
+
+// Update Member Expiry Date
+async function updateMemberExpiry(memberId, expiryDate) {
+    try {
+        const { data, error } = await supabaseInstance
+            .from('members')
+            .update({ membership_expiry: expiryDate })
+            .eq('id', memberId);
+
+        if (error) throw error;
+        
+        return { success: true, data };
+    } catch (error) {
+        console.error('Error updating membership expiry:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// Export the function
+window.supabaseClient.updateMemberExpiry = updateMemberExpiry;
