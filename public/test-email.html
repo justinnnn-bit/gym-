@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Email API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+        .success {
+            background: #d1fae5;
+            color: #047857;
+        }
+        .error {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Email API</h1>
+    <p>This page tests if the email system is working</p>
+    
+    <label>Your Email Address:</label>
+    <input type="email" id="emailInput" placeholder="your@email.com" value="">
+    
+    <button onclick="testEmail()">Send Test Email</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        async function testEmail() {
+            const email = document.getElementById('emailInput').value;
+            const result = document.getElementById('result');
+            
+            if (!email) {
+                result.className = 'error';
+                result.textContent = 'Please enter an email address';
+                result.style.display = 'block';
+                return;
+            }
+            
+            result.textContent = 'Sending email...';
+            result.className = '';
+            result.style.display = 'block';
+            
+            try {
+                const response = await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        to: email,
+                        subject: '🎉 Test Email from DarkKnight Fitness',
+                        emailType: 'welcome',
+                        memberName: 'Test User',
+                        data: {
+                            email: email,
+                            membershipType: 'Premium',
+                            expiryDate: '2027-12-31'
+                        }
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('API Response:', data);
+                
+                if (data.success) {
+                    result.className = 'success';
+                    result.textContent = '✅ Email sent successfully! Check your inbox.';
+                } else {
+                    result.className = 'error';
+                    result.textContent = '❌ Failed: ' + (data.error || 'Unknown error');
+                }
+            } catch (error) {
+                result.className = 'error';
+                result.textContent = '❌ Error: ' + error.message;
+                console.error('Fetch error:', error);
+            }
+            
+            result.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
