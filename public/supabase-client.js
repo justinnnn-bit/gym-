@@ -180,7 +180,7 @@ async function recordAttendance(memberId, action)  {try {
 async function getTodayAttendance()  {try {
         const { data, error } = await supabaseInstance
             .from('todays_attendance')
-            .select('*')
+            .select('*, members(name)')
             .order('check_time', { ascending: false });
 
         if (error) throw error;
