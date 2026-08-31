@@ -46,6 +46,11 @@ async function loginMember(email, password) {
             return { success: false, error: 'Invalid credentials or account not approved' };
         }
 
+        // Verify password
+        if (account.password_hash !== password) {
+            return { success: false, error: 'Invalid credentials' };
+        }
+
         if (!account.members) {
             return { success: false, error: 'Member profile not found' };
         }
