@@ -1147,7 +1147,14 @@ async function processApproval(accountId, name, membershipType) {
             
             // Send welcome email
             if (result.member && window.emailHelper) {
-                await window.emailHelper.sendWelcomeEmail(result.member);
+                console.log('Attempting to send welcome email to:', result.member.email);
+                const emailResult = await window.emailHelper.sendWelcomeEmail(result.member);
+                console.log('Welcome email result:', emailResult);
+                if (!emailResult.success) {
+                    console.error('Failed to send welcome email:', emailResult.error);
+                }
+            } else {
+                console.log('Email helper not available or member data missing');
             }
             
             loadAccountRequests();
