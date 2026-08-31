@@ -1,6 +1,5 @@
 // GitHub Action script to check for expiring memberships
 import { createClient } from '@supabase/supabase-js';
-import fetch from 'node-fetch';
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
