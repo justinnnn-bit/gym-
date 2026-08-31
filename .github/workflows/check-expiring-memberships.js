@@ -1,9 +1,14 @@
 // GitHub Action script to check for expiring memberships
-import { createClient } from '@supabase/supabase-js';
+const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const vercelApiUrl = process.env.VERCEL_API_URL || 'https://darkknightfitness.vercel.app';
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('❌ Missing required environment variables');
+  process.exit(1);
+}
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
