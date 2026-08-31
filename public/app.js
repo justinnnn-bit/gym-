@@ -718,7 +718,7 @@ function displayAllRecords(attendance) {
         return;
     }
     
-    const latest = attendance.slice(-50).reverse();
+    const latest = attendance.slice(0, 50); // Already sorted descending from API
     
     container.innerHTML = `
         <div class="table-header">
@@ -732,12 +732,27 @@ function displayAllRecords(attendance) {
             const actionClass = record.action === 'checkin' ? 'checkin' : 'checkout';
             const actionText = record.action === 'checkin' ? 'Check-In' : 'Check-Out';
             
+            const checkTime = new Date(record.check_time);
+            const dateStr = checkTime.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+            });
+            const timeStr = checkTime.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            
+            const memberName = record.members?.name || 'Unknown';
+            const memberId = record.member_id ? '#' + record.member_id.substring(0, 8).toUpperCase() : 'N/A';
+            
             return `
                 <div class="attendance-row">
-                    <span>${record.memberName}</span>
-                    <span>${record.memberId || 'N/A'}</span>
-                    <span>${new Date(record.date).toLocaleDateString()}</span>
-                    <span>${record.checkInTime}</span>
+                    <span>${memberName}</span>
+                    <span>${memberId}</span>
+                    <span>${dateStr}</span>
+                    <span>${timeStr}</span>
                     <span class="status-badge ${actionClass}">${actionText}</span>
                 </div>
             `;
