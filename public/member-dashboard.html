@@ -33,6 +33,8 @@
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
+            margin: 0;
+            padding: 0;
         }
         
         body::before {
@@ -61,7 +63,7 @@
             top: 0;
             width: 280px;
             height: 100vh;
-            background: rgba(30, 41, 59, 0.95);
+            background: linear-gradient(180deg, rgba(51, 65, 85, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             padding: 20px;
@@ -71,6 +73,7 @@
             display: flex;
             flex-direction: column;
             overflow-y: auto;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
         }
         
         .sidebar.closed {
@@ -196,8 +199,8 @@
         .main-content {
             margin-left: 280px;
             padding: 20px;
-            min-height: 100vh;
             transition: margin-left 0.3s ease;
+            max-width: 100%;
         }
         
         .main-content.expanded {
@@ -266,11 +269,11 @@
         /* Page Content */
         .page {
             display: none;
+            animation: fadeIn 0.3s ease;
         }
         
         .page.active {
             display: block;
-            animation: fadeIn 0.3s ease;
         }
         
         @keyframes fadeIn {
@@ -681,7 +684,8 @@
         
         /* Membership Page */
         .membership-container {
-            max-width: 800px;
+            max-width: 900px;
+            margin: 0 auto;
         }
         
         .membership-card {
@@ -777,7 +781,8 @@
         
         /* Settings Page */
         .settings-container {
-            max-width: 800px;
+            max-width: 900px;
+            margin: 0 auto;
         }
         
         .settings-section {
