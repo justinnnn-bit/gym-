@@ -1,5 +1,5 @@
 // GitHub Action script to check for expiring memberships
-const { createClient } = require('@supabase/supabase-js');
+// Uses Supabase REST API directly instead of the JS client
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
@@ -10,8 +10,6 @@ if (!supabaseUrl || !supabaseKey) {
   process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl, supabaseKey);
-
 async function checkExpiringMemberships() {
   console.log('🔍 Checking for expiring memberships...');
 
@@ -20,15 +18,26 @@ async function checkExpiringMemberships() {
     const sevenDaysFromNow = new Date(today);
     sevenDaysFromNow.setDate(today.getDate() + 7);
 
-    // Get members whose membership expires in 7 days
-    const { data: expiringMembers, error: expiringError } = await supabase
-      .from('members')
-      .select('*')
-      .eq('active', true)
-      .gte('membership_expiry', today.toISOString().split('T')[0])
-      .lte('membership_expiry', sevenDaysFromNow.toISOString().split('T')[0]);
+    const todayStr = today.toISOString().split('T')[0];
+    const sevenDaysStr = sevenDaysFromNow.toISOString().split('T')[0];
 
-    if (expiringError) throw expiringError;
+    // Get members whose membership expires in 7 days using Supabase REST API
+    const expiringResponse = await fetch(
+      `${supabaseUrl}/rest/v1/members?active=eq.true&membership_expiry=gte.${todayStr}&membership_expiry=lte.${sevenDaysStr}&select=*`,
+      {
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (!expiringResponse.ok) {
+      throw new Error(`Supabase API error: ${expiringResponse.status} ${expiringResponse.statusText}`);
+    }
+
+    const expiringMembers = await expiringResponse.json();
 
     console.log(`📧 Found ${expiringMembers?.length || 0} memberships expiring soon`);
 
@@ -55,15 +64,24 @@ async function checkExpiringMemberships() {
     // Get members whose membership expired yesterday or today
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-    const { data: expiredMembers, error: expiredError } = await supabase
-      .from('members')
-      .select('*')
-      .eq('active', true)
-      .gte('membership_expiry', yesterday.toISOString().split('T')[0])
-      .lt('membership_expiry', today.toISOString().split('T')[0]);
+    const expiredResponse = await fetch(
+      `${supabaseUrl}/rest/v1/members?active=eq.true&membership_expiry=gte.${yesterdayStr}&membership_expiry=lt.${todayStr}&select=*`,
+      {
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
 
-    if (expiredError) throw expiredError;
+    if (!expiredResponse.ok) {
+      throw new Error(`Supabase API error: ${expiredResponse.status} ${expiredResponse.statusText}`);
+    }
+
+    const expiredMembers = await expiredResponse.json();
 
     console.log(`🚨 Found ${expiredMembers?.length || 0} expired memberships`);
 
@@ -82,10 +100,19 @@ async function checkExpiringMemberships() {
       });
 
       // Mark member as inactive
-      await supabase
-        .from('members')
-        .update({ active: false })
-        .eq('id', member.id);
+      await fetch(
+        `${supabaseUrl}/rest/v1/members?id=eq.${member.id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({ active: false })
+        }
+      );
 
       console.log(`Marked ${member.name} as inactive`);
     }
@@ -93,7 +120,7 @@ async function checkExpiringMemberships() {
     console.log('✅ Email check completed successfully');
 
   } catch (error) {
-    console.error('❌ Error checking memberships:', error);
+    console.error('❌ Error checking memberships:', error.message);
     process.exit(1);
   }
 }
@@ -116,7 +143,7 @@ async function sendEmail(emailData) {
       console.log('✅ Email sent successfully');
     }
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error sending email:', error.message);
   }
 }
 
