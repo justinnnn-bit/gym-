@@ -223,6 +223,23 @@ function setupEventListeners() {
     }
     
     // Add member button
+    // Member search and filter
+    const membersSearch = document.getElementById('members-search');
+    if (membersSearch) {
+        membersSearch.addEventListener('input', filterMembers);
+    }
+    
+    const membershipFilter = document.getElementById('membership-filter');
+    if (membershipFilter) {
+        membershipFilter.addEventListener('change', filterMembers);
+    }
+    
+    const statusFilter = document.getElementById('status-filter');
+    if (statusFilter) {
+        statusFilter.addEventListener('change', filterMembers);
+    }
+    
+    // Add Member button - removed functionality
     const addMemberBtn = document.getElementById('add-member-btn');
     if (addMemberBtn) {
         addMemberBtn.addEventListener('click', () => {
@@ -562,72 +579,208 @@ function displayMembers() {
     const container = document.getElementById('members-list');
     
     if (!currentMembers || currentMembers.length === 0) {
-        container.innerHTML = '<div style="text-align: center; padding: 60px; color: #94A3B8;"><i class="fas fa-users" style="font-size: 4em; margin-bottom: 20px; display: block;"></i><h3>No Members Yet</h3><p>Add your first member to get started</p></div>';
+        container.innerHTML = '<div style="text-align: center; padding: 60px; color: #94A3B8;"><i class="fas fa-users" style="font-size: 4em; margin-bottom: 20px; display: block;"></i><h3>No Members Yet</h3><p>Approve account requests to add members</p></div>';
         return;
     }
     
+    // Calculate status for each member
+    const membersWithStatus = currentMembers.map(member => {
+        const expiryDate = member.membership_expiry ? new Date(member.membership_expiry) : null;
+        const today = new Date();
+        const daysUntilExpiry = expiryDate ? Math.ceil((expiryDate - today) / (1000 * 60 * 60 * 24)) : null;
+        
+        let status = 'active';
+        if (!expiryDate) {
+            status = 'active';
+        } else if (daysUntilExpiry < 0) {
+            status = 'expired';
+        } else if (daysUntilExpiry <= 7) {
+            status = 'expiring';
+        }
+        
+        return { ...member, status, daysUntilExpiry, expiryDate };
+    });
+    
+    // Store for filtering
+    window.allMembersData = membersWithStatus;
+    
     container.innerHTML = `
-        <div class="members-table-container">
-            <table class="members-table">
-                <thead>
-                    <tr>
-                        <th>Member</th>
-                        <th>Contact</th>
-                        <th>Membership</th>
-                        <th>Join Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${currentMembers.map(member => {
-                        const initial = member.name.charAt(0).toUpperCase();
-                        const joinDate = member.join_date ? new Date(member.join_date).toLocaleDateString() : 'N/A';
-                        const membershipColor = {
-                            'Basic': '#3b82f6',
-                            'Premium': '#8b5cf6',
-                            'VIP': '#f59e0b'
-                        }[member.membership_type] || '#64748b';
+        <div class="members-cards-container">
+            ${membersWithStatus.map(member => {
+                const initial = member.name.charAt(0).toUpperCase();
+                const joinDate = member.join_date ? new Date(member.join_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A';
+                const expiryDateStr = member.membership_expiry || '';
+                const membershipColor = {
+                    'Basic': '#3b82f6',
+                    'Premium': '#8b5cf6',
+                    'VIP': '#f59e0b'
+                }[member.membership_type] || '#64748b';
+                
+                const statusText = {
+                    'active': 'Active',
+                    'expiring': `Expires in ${member.daysUntilExpiry} days`,
+                    'expired': 'Expired'
+                }[member.status];
+                
+                return `
+                    <div class="member-card" data-member-id="${member.id}" data-membership="${member.membership_type}" data-status="${member.status}">
+                        <div class="member-card-header">
+                            <div class="member-avatar-large" style="background: ${membershipColor}">
+                                ${initial}
+                            </div>
+                            <div class="member-main-info">
+                                <div class="member-name-large">${member.name}</div>
+                                <span class="member-id-badge">ID: ${member.id.slice(-8)}</span>
+                            </div>
+                            <span class="status-badge-card ${member.status}">
+                                <i class="fas fa-circle" style="font-size: 8px;"></i>
+                                ${statusText}
+                            </span>
+                        </div>
                         
-                        return `
-                            <tr class="member-row">
-                                <td>
-                                    <div class="member-cell">
-                                        <div class="member-avatar-small">${initial}</div>
-                                        <span class="member-name">${member.name}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="contact-cell">
-                                        <span class="email-text"><i class="fas fa-envelope"></i> ${member.email}</span>
-                                        <span class="phone-text"><i class="fas fa-phone"></i> ${member.phone}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="membership-badge" style="background: ${membershipColor}">
-                                        ${member.membership_type === 'VIP' ? '<i class="fas fa-crown"></i>' : '<i class="fas fa-star"></i>'}
-                                        ${member.membership_type}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="date-text">${joinDate}</span>
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button class="btn-table-delete" onclick="confirmDeleteMember('${member.id}', '${member.name}')" title="Delete Member">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                    }).join('')}
-                </tbody>
-            </table>
+                        <div class="member-card-body">
+                            <div class="member-detail-group">
+                                <span class="detail-label">Contact</span>
+                                <span class="detail-value">
+                                    <i class="fas fa-envelope"></i>
+                                    ${member.email}
+                                </span>
+                                <span class="detail-value">
+                                    <i class="fas fa-phone"></i>
+                                    ${member.phone}
+                                </span>
+                            </div>
+                            
+                            <div class="member-detail-group">
+                                <span class="detail-label">Membership</span>
+                                <span class="membership-badge" style="background: ${membershipColor}; width: fit-content;">
+                                    ${member.membership_type === 'VIP' ? '<i class="fas fa-crown"></i>' : '<i class="fas fa-star"></i>'}
+                                    ${member.membership_type}
+                                </span>
+                            </div>
+                            
+                            <div class="member-detail-group">
+                                <span class="detail-label">Join Date</span>
+                                <span class="detail-value">
+                                    <i class="fas fa-calendar-plus"></i>
+                                    ${joinDate}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="member-card-footer">
+                            <div class="expiry-section">
+                                <div class="member-detail-group" style="margin: 0;">
+                                    <span class="detail-label">Membership Expiry</span>
+                                </div>
+                                <div class="expiry-input-wrapper">
+                                    <input 
+                                        type="date" 
+                                        class="expiry-date-input" 
+                                        value="${expiryDateStr}"
+                                        id="expiry-${member.id}"
+                                    >
+                                </div>
+                                <button class="btn-update-expiry" onclick="updateMembershipExpiry('${member.id}')">
+                                    <i class="fas fa-save"></i>
+                                    Update
+                                </button>
+                            </div>
+                            
+                            <button class="btn-delete-member" onclick="confirmDeleteMember('${member.id}', '${member.name}')">
+                                <i class="fas fa-trash"></i>
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
         </div>
-        <div class="members-summary">
-            <span>${currentMembers.length} total member${currentMembers.length !== 1 ? 's' : ''}</span>
+        <div class="members-count">
+            <strong>${membersWithStatus.length}</strong> total members
         </div>
     `;
+}
+
+// Filter members based on search and filters
+function filterMembers() {
+    const searchTerm = document.getElementById('members-search').value.toLowerCase();
+    const membershipFilter = document.getElementById('membership-filter').value;
+    const statusFilter = document.getElementById('status-filter').value;
+    
+    const cards = document.querySelectorAll('.member-card');
+    
+    cards.forEach(card => {
+        const memberName = card.querySelector('.member-name-large').textContent.toLowerCase();
+        const memberEmail = card.querySelector('.detail-value').textContent.toLowerCase();
+        const membershipType = card.dataset.membership;
+        const status = card.dataset.status;
+        
+        const matchesSearch = memberName.includes(searchTerm) || memberEmail.includes(searchTerm);
+        const matchesMembership = membershipFilter === 'all' || membershipType === membershipFilter;
+        const matchesStatus = statusFilter === 'all' || status === statusFilter;
+        
+        if (matchesSearch && matchesMembership && matchesStatus) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// Update membership expiry date
+async function updateMembershipExpiry(memberId) {
+    const expiryInput = document.getElementById(`expiry-${memberId}`);
+    const expiryDate = expiryInput.value;
+    
+    if (!expiryDate) {
+        alert('Please select an expiry date');
+        return;
+    }
+    
+    try {
+        const { data, error } = await window.supabaseClient.supabaseInstance
+            .from('members')
+            .update({ membership_expiry: expiryDate })
+            .eq('id', memberId);
+        
+        if (error) throw error;
+        
+        // Show success message
+        showSuccessMessage('Membership expiry updated successfully!');
+        
+        // Reload members to update the status badge
+        await loadMembers();
+        
+    } catch (error) {
+        console.error('Error updating expiry:', error);
+        alert('Failed to update membership expiry');
+    }
+}
+
+// Show success message (temporary notification)
+function showSuccessMessage(message) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-weight: 600;
+        animation: slideIn 0.3s ease;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
 
 // Add Member

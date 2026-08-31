@@ -253,9 +253,34 @@
         <div id="members" class="page">
             <div class="page-header">
                 <h1>Members Management</h1>
-                <button class="btn-primary" id="add-member-btn">
-                    <i class="fas fa-plus"></i> Add New Member
-                </button>
+                <p style="color: #94A3B8; font-size: 0.95rem; margin-top: 8px;">Manage membership details and expiry dates</p>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="members-search-container">
+                <div class="search-box-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input 
+                        type="text" 
+                        id="members-search" 
+                        class="members-search-input" 
+                        placeholder="Search members by name, email, or phone..."
+                    >
+                </div>
+                <div class="filter-controls">
+                    <select id="membership-filter" class="filter-select">
+                        <option value="all">All Memberships</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Premium">Premium</option>
+                        <option value="VIP">VIP</option>
+                    </select>
+                    <select id="status-filter" class="filter-select">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="expiring">Expiring Soon</option>
+                        <option value="expired">Expired</option>
+                    </select>
+                </div>
             </div>
 
             <div id="members-list"></div>

@@ -2344,3 +2344,301 @@ body {
         font-size: 16px; /* Prevents zoom on Android */
     }
 }
+
+/* Members Search Container */
+.members-search-container {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.search-box-wrapper {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.members-search-input {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: all 0.2s;
+    background: #f8fafc;
+}
+
+.members-search-input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.filter-controls {
+    display: flex;
+    gap: 12px;
+}
+
+.filter-select {
+    flex: 1;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+}
+
+/* Member Cards Layout */
+.members-cards-container {
+    display: grid;
+    gap: 16px;
+}
+
+.member-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.member-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    border-color: #667eea;
+}
+
+.member-card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.member-avatar-large {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+
+.member-main-info {
+    flex: 1;
+}
+
+.member-name-large {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+
+.member-id-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.member-card-body {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.member-detail-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-label {
+    font-size: 12px;
+    color: #94a3b8;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-value {
+    font-size: 14px;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.detail-value i {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.member-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.expiry-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.expiry-input-wrapper {
+    position: relative;
+    flex: 1;
+    max-width: 200px;
+}
+
+.expiry-date-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 13px;
+    transition: all 0.2s;
+    background: #f8fafc;
+}
+
+.expiry-date-input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+}
+
+.btn-update-expiry {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-update-expiry:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.btn-delete-member {
+    padding: 10px 16px;
+    border: 2px solid #ef4444;
+    border-radius: 8px;
+    background: white;
+    color: #ef4444;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-delete-member:hover {
+    background: #ef4444;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+}
+
+.status-badge-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge-card.active {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.status-badge-card.expiring {
+    background: #fed7aa;
+    color: #c2410c;
+}
+
+.status-badge-card.expired {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.members-count {
+    padding: 16px 20px;
+    background: #f8fafc;
+    border-radius: 12px;
+    text-align: center;
+    color: #64748b;
+    font-size: 14px;
+    margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+    .filter-controls {
+        flex-direction: column;
+    }
+    
+    .member-card-body {
+        grid-template-columns: 1fr;
+    }
+    
+    .member-card-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .expiry-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .expiry-input-wrapper {
+        max-width: 100%;
+    }
+}
