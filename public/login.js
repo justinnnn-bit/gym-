@@ -169,6 +169,21 @@ function closeSuccessModal() {
     modal.classList.remove('show');
 }
 
+// Error Modal Functions
+function showErrorModal(message) {
+    const modal = document.getElementById('custom-error-modal');
+    document.getElementById('error-modal-message').textContent = message;
+    modal.classList.add('show');
+}
+
+function closeErrorModal() {
+    const modal = document.getElementById('custom-error-modal');
+    modal.classList.remove('show');
+}
+
+// Override alert to use custom modal
+window.alert = showErrorModal;
+
 // Check if already logged in
 window.addEventListener('DOMContentLoaded', () => {
     const userSession = localStorage.getItem('userSession');
