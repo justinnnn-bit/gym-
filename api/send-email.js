@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
     // Send email via Resend
     const response = await resend.emails.send({
-      from: process.env.FROM_EMAIL || 'DarkKnight Fitness <onboarding@resend.dev>',
+      from: 'Acme <onboarding@resend.dev>',
       to: to,
       subject: subject,
       html: emailHTML,
