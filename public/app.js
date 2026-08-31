@@ -455,6 +455,16 @@ async function processAttendance(memberId, memberName) {
         if (result.success) {
             showSuccessModal(result.member, result.attendance);
             
+            // Send email notification
+            if (window.emailHelper && result.member.email) {
+                const checkTime = result.attendance.check_time || new Date();
+                if (result.attendance.action === 'checkin') {
+                    await window.emailHelper.sendCheckInEmail(result.member, checkTime);
+                } else {
+                    await window.emailHelper.sendCheckOutEmail(result.member, checkTime);
+                }
+            }
+            
             // Resume scanner after 3 seconds
             setTimeout(() => {
                 if (html5QrCode) {
@@ -1144,6 +1154,12 @@ async function processApproval(accountId, name, membershipType) {
         
         if (result.success) {
             showSuccessModal(`Account approved! ${name} can now login and access the gym.`);
+            
+            // Send welcome email
+            if (result.member && window.emailHelper) {
+                await window.emailHelper.sendWelcomeEmail(result.member);
+            }
+            
             loadAccountRequests();
             loadMembers();
             loadDashboard();
