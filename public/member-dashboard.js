@@ -479,8 +479,7 @@ function initializeNavigation() {
             
             // Update page title
             const titles = {
-                'dashboard': { title: 'Dashboard', subtitle: 'Your gym stats overview' },
-                'calendar': { title: 'My Calendar', subtitle: 'Track your gym attendance' },
+                'dashboard': { title: 'Dashboard', subtitle: 'Your gym stats and attendance' },
                 'membership': { title: 'Membership', subtitle: 'Your membership details' },
                 'settings': { title: 'Settings', subtitle: 'Manage your account' }
             };

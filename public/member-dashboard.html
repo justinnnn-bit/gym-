@@ -965,13 +965,9 @@ yes
         </div>
         
         <nav class="nav-menu">
-            <a href="#" class="nav-item" data-page="dashboard">
+            <a href="#" class="nav-item active" data-page="dashboard">
                 <i class="fas fa-th-large"></i>
                 <span>Dashboard</span>
-            </a>
-            <a href="#" class="nav-item active" data-page="calendar">
-                <i class="fas fa-calendar-alt"></i>
-                <span>Calendar</span>
             </a>
             <a href="#" class="nav-item" data-page="membership">
                 <i class="fas fa-id-card"></i>
@@ -999,8 +995,8 @@ yes
                 <i class="fas fa-bars"></i>
             </button>
             <div class="page-title">
-                <h1 id="page-title-text">My Calendar</h1>
-                <p id="page-subtitle-text">Track your gym attendance</p>
+                <h1 id="page-title-text">Dashboard</h1>
+                <p id="page-subtitle-text">Your gym stats and attendance</p>
             </div>
             <div class="date-time">
                 <i class="far fa-calendar"></i>
@@ -1009,7 +1005,7 @@ yes
         </div>
 
         <!-- Dashboard Page -->
-        <div id="dashboard" class="page">
+        <div id="dashboard" class="page active">
             <div class="dashboard-grid">
                 <div class="stat-card green">
                     <div class="stat-header">
@@ -1064,20 +1060,8 @@ yes
                 </div>
             </div>
             
-            <div class="activity-card">
-                <div class="activity-header">
-                    <i class="fas fa-history"></i>
-                    <h3>Recent Activity</h3>
-                </div>
-                <div class="activity-list" id="recent-activity">
-                    <!-- Activity items will be loaded here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Calendar Page -->
-        <div id="calendar" class="page active">
-            <div class="calendar-container">
+            <!-- Calendar in Dashboard -->
+            <div class="calendar-container" style="margin-top: 20px;">
                 <div class="calendar-header">
                     <h2>My Attendance Calendar</h2>
                     <div class="month-nav">
@@ -1108,7 +1092,19 @@ yes
                     </div>
                 </div>
             </div>
+            
+            <div class="activity-card" style="margin-top: 20px;">
+                <div class="activity-header">
+                    <i class="fas fa-history"></i>
+                    <h3>Recent Activity</h3>
+                </div>
+                <div class="activity-list" id="recent-activity">
+                    <!-- Activity items will be loaded here -->
+                </div>
+            </div>
         </div>
+
+        <!-- Calendar Page - REMOVED -->
 
         <!-- Membership Page -->
         <div id="membership" class="page">
