@@ -62,19 +62,11 @@ Vercel will auto-deploy with the new API route.
 - Triggered when admin approves account request
 - Contains login link and membership details
 
-### 2. **Check-In Confirmation** (Instant)
-- Sent when member scans QR code to check-in
-- Includes check-in time
-
-### 3. **Check-Out Confirmation** (Instant)
-- Sent when member scans QR code to check-out
-- Includes check-out time and workout duration
-
-### 4. **Membership Expiring Soon** (Daily at 9 AM UTC)
+### 2. **Membership Expiring Soon** (Daily at 9 AM UTC)
 - Sent 7 days before expiry
 - Automated via GitHub Actions
 
-### 5. **Membership Expired** (Daily at 9 AM UTC)
+### 3. **Membership Expired** (Daily at 9 AM UTC)
 - Sent when membership expires
 - Member account automatically marked as inactive
 
@@ -96,12 +88,6 @@ Vercel will auto-deploy with the new API route.
 2. Go to admin dashboard → Account Requests
 3. Approve the account
 4. Check the registered email inbox for welcome email
-
-### Test Check-In Email:
-
-1. Login as a member
-2. Scan the check-in QR code
-3. Check your email inbox
 
 ---
 

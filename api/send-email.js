@@ -183,64 +183,6 @@ function generateEmailTemplate(emailType, memberName, data) {
         </html>
       `;
 
-    case 'checkin':
-      return `
-        <!DOCTYPE html>
-        <html>
-        <head>${baseStyle}</head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>✅ Check-In Confirmed</h1>
-            </div>
-            <div class="content">
-              <h2>Hi ${memberName}!</h2>
-              <p>You've successfully checked in to DarkKnight Fitness.</p>
-              
-              <div class="highlight">
-                <strong>Check-In Time:</strong> ${new Date(data.checkTime).toLocaleString()}<br>
-                <strong>Location:</strong> DarkKnight Fitness Gym
-              </div>
-
-              <p>Have a great workout! 💪</p>
-            </div>
-            <div class="footer">
-              <p>DarkKnight Fitness | Stay Strong, Stay Fit</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `;
-
-    case 'checkout':
-      return `
-        <!DOCTYPE html>
-        <html>
-        <head>${baseStyle}</head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>👋 Check-Out Confirmed</h1>
-            </div>
-            <div class="content">
-              <h2>Great workout, ${memberName}!</h2>
-              <p>You've successfully checked out from DarkKnight Fitness.</p>
-              
-              <div class="highlight">
-                <strong>Check-Out Time:</strong> ${new Date(data.checkTime).toLocaleString()}<br>
-                ${data.duration ? `<strong>Workout Duration:</strong> ${data.duration}` : ''}
-              </div>
-
-              <p>Keep up the great work! See you next time! 🎯</p>
-            </div>
-            <div class="footer">
-              <p>DarkKnight Fitness | Stay Strong, Stay Fit</p>
-            </div>
-          </div>
-        </body>
-        </html>
-      `;
-
     default:
       return `
         <!DOCTYPE html>

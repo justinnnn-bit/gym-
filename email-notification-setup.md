@@ -7,7 +7,6 @@ This guide will help you set up automated email notifications for gym members us
 1. **Welcome Email** - When account is approved
 2. **Membership Expiring Soon** - 7 days before expiry
 3. **Membership Expired** - When membership expires
-4. **Check-in/Check-out Confirmation** - After attendance marking
 
 ---
 
