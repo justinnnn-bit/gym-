@@ -21,6 +21,9 @@ yes
         html, body {
             margin: 0;
             padding: 0;
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
         }
         
         /* Performance optimization */
@@ -76,6 +79,7 @@ yes
             flex-direction: column;
             overflow-y: auto;
             box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
+            contain: layout;
         }
         
         .sidebar.closed {
