@@ -346,7 +346,7 @@ document.getElementById('profile-form')?.addEventListener('submit', async (e) =>
         const result = await window.supabaseClient.updateMemberProfile(memberId, { name, phone });
         
         if (result.success) {
-            alert('Profile updated successfully!');
+            showAlert('Profile updated successfully!', 'success');
             memberData.name = name;
             memberData.phone = phone;
             
@@ -361,10 +361,10 @@ document.getElementById('profile-form')?.addEventListener('submit', async (e) =>
             // Reload membership page
             loadMembershipPage();
         } else {
-            alert('Failed to update profile: ' + (result.error || 'Unknown error'));
+            showAlert('Failed to update profile: ' + (result.error || 'Unknown error'), 'error');
         }
     } catch (error) {
-        alert('Error updating profile');
+        showAlert('Error updating profile', 'error');
         console.error(error);
     }
 });
@@ -378,19 +378,19 @@ document.getElementById('password-form')?.addEventListener('submit', async (e) =
     const confirmPassword = document.getElementById('confirm-password').value;
     
     if (newPassword !== confirmPassword) {
-        alert('New passwords do not match!');
+        showAlert('New passwords do not match!', 'error');
         return;
     }
     
     if (newPassword.length < 6) {
-        alert('New password must be at least 6 characters long!');
+        showAlert('New password must be at least 6 characters long!', 'warning');
         return;
     }
     
     try {
         // Check if function exists
         if (typeof window.supabaseClient.changePassword !== 'function') {
-            alert('Password change function not available. Please refresh the page and try again.');
+            showAlert('Password change function not available. Please refresh the page and try again.', 'error');
             console.error('changePassword function not found on window.supabaseClient');
             return;
         }
@@ -399,18 +399,18 @@ document.getElementById('password-form')?.addEventListener('submit', async (e) =
         const result = await window.supabaseClient.changePassword(memberId, currentPassword, newPassword);
         
         if (!result) {
-            alert('Failed to change password: No response from server');
+            showAlert('Failed to change password: No response from server', 'error');
             return;
         }
         
         if (result.success) {
-            alert('Password changed successfully!');
+            showAlert('Password changed successfully!', 'success');
             document.getElementById('password-form').reset();
         } else {
-            alert('Failed to change password: ' + (result.error || 'Unknown error'));
+            showAlert('Failed to change password: ' + (result.error || 'Unknown error'), 'error');
         }
     } catch (error) {
-        alert('Error changing password: ' + error.message);
+        showAlert('Error changing password: ' + error.message, 'error');
         console.error('Password change error:', error);
     }
 });
