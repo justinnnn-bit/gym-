@@ -21,9 +21,7 @@ yes
         html, body {
             margin: 0;
             padding: 0;
-            height: auto !important;
-            min-height: 0 !important;
-            max-height: none !important;
+            height: 100%;
         }
         
         /* Performance optimization */
@@ -40,8 +38,8 @@ yes
             background-attachment: fixed;
             background-size: cover;
             overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 280px 1fr;
         }
         
         body::before {
@@ -65,9 +63,9 @@ yes
         
         /* Sidebar */
         .sidebar {
-            position: fixed;
-            left: 0;
+            position: sticky;
             top: 0;
+            left: 0;
             width: 280px;
             height: 100vh;
             background: linear-gradient(180deg, rgba(51, 65, 85, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
@@ -81,7 +79,6 @@ yes
             flex-direction: column;
             overflow-y: auto;
             box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
-            contain: strict;
         }
         
         .sidebar.closed {
@@ -205,14 +202,13 @@ yes
         
         /* Main Content */
         .main-content {
-            margin-left: 280px;
             padding: 20px 20px 40px 20px;
             transition: margin-left 0.3s ease;
             max-width: 100%;
         }
         
         .main-content.expanded {
-            margin-left: 0;
+            grid-column: 1 / -1;
         }
         
         .top-bar {
@@ -885,7 +881,12 @@ yes
         
         /* Responsive */
         @media (max-width: 1024px) {
+            body {
+                grid-template-columns: 1fr;
+            }
+            
             .sidebar {
+                position: fixed;
                 transform: translateX(-100%);
             }
             
@@ -894,7 +895,7 @@ yes
             }
             
             .main-content {
-                margin-left: 0;
+                grid-column: 1;
             }
             
             .menu-toggle {
