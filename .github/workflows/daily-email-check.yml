@@ -29,4 +29,9 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           VERCEL_API_URL: ${{ secrets.VERCEL_API_URL }}
-        run: node .github/workflows/check-expiring-memberships.js
+        run: |
+          echo "Starting email notification check..."
+          echo "SUPABASE_URL is set: ${{ secrets.SUPABASE_URL != '' }}"
+          echo "SUPABASE_ANON_KEY is set: ${{ secrets.SUPABASE_ANON_KEY != '' }}"
+          echo "VERCEL_API_URL is set: ${{ secrets.VERCEL_API_URL != '' }}"
+          node .github/workflows/check-expiring-memberships.js
