@@ -178,9 +178,13 @@ async function recordAttendance(memberId, action)  {try {
 }
 
 async function getTodayAttendance()  {try {
+        const today = new Date().toISOString().split('T')[0]; // Get YYYY-MM-DD format
+        
         const { data, error } = await supabaseInstance
-            .from('todays_attendance')
+            .from('attendance')
             .select('*, members(name)')
+            .gte('check_time', `${today}T00:00:00`)
+            .lte('check_time', `${today}T23:59:59`)
             .order('check_time', { ascending: false });
 
         if (error) throw error;
