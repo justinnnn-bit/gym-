@@ -687,10 +687,16 @@ function displayMembers() {
                                 </button>
                             </div>
                             
-                            <button class="btn-delete-member" onclick="confirmDeleteMember('${member.id}', '${member.name}')">
-                                <i class="fas fa-trash"></i>
-                                Delete
-                            </button>
+                            <div class="member-actions">
+                                <button class="btn-download-history" onclick="downloadMemberHistory('${member.id}', '${member.name}')" title="Download Attendance History">
+                                    <i class="fas fa-download"></i>
+                                    Download History
+                                </button>
+                                <button class="btn-delete-member" onclick="confirmDeleteMember('${member.id}', '${member.name}')">
+                                    <i class="fas fa-trash"></i>
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1279,3 +1285,52 @@ document.addEventListener('click', (e) => {
         }
     }
 });
+
+
+// Download member attendance history as CSV
+async function downloadMemberHistory(memberId, memberName) {
+    try {
+        // Get member attendance
+        const attendance = await window.supabaseClient.getMemberAttendance(memberId);
+        
+        if (!attendance || attendance.length === 0) {
+            alert('No attendance history found for this member.');
+            return;
+        }
+        
+        // Sort by date descending
+        attendance.sort((a, b) => new Date(b.check_time) - new Date(a.check_time));
+        
+        // Create CSV content
+        let csvContent = "Date,Time,Action\n";
+        
+        attendance.forEach(record => {
+            const dateTime = new Date(record.check_time);
+            const date = dateTime.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            const time = dateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            const action = record.action === 'checkin' ? 'Check-In' : 'Check-Out';
+            
+            csvContent += `${date},${time},${action}\n`;
+        });
+        
+        // Create blob and download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        const fileName = `${memberName.replace(/\s+/g, '_')}_Attendance_History_${new Date().toISOString().split('T')[0]}.csv`;
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', fileName);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Show success message
+        showCustomAlert('Attendance history downloaded successfully!', 'success');
+    } catch (error) {
+        console.error('Error downloading member history:', error);
+        showCustomAlert('Failed to download attendance history.', 'error');
+    }
+}
