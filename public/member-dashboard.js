@@ -19,6 +19,26 @@ window.addEventListener('DOMContentLoaded', async () => {
     memberId = user.id;
     memberData = user;
     
+    // Verify member still exists in database
+    try {
+        const member = await window.supabaseClient.getMemberById(memberId);
+        if (!member || !member.active) {
+            // Member deleted or deactivated - force logout
+            localStorage.removeItem('userSession');
+            localStorage.removeItem('userRole');
+            alert('Your account has been removed. Please contact the administrator.');
+            window.location.href = '/login.html';
+            return;
+        }
+    } catch (error) {
+        console.error('Error verifying member:', error);
+        // If member not found, logout
+        localStorage.removeItem('userSession');
+        localStorage.removeItem('userRole');
+        window.location.href = '/login.html';
+        return;
+    }
+    
     // Update sidebar profile
     const initial = user.name.charAt(0).toUpperCase();
     document.getElementById('member-avatar').textContent = initial;
@@ -418,8 +438,9 @@ document.getElementById('password-form')?.addEventListener('submit', async (e) =
 // Sidebar toggle for mobile
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('main-content');
+    const overlay = document.getElementById('sidebar-overlay');
     sidebar.classList.toggle('open');
+    overlay.classList.toggle('active');
 }
 
 // Custom alert function
@@ -491,6 +512,7 @@ function initializeNavigation() {
             // Close sidebar on mobile after navigation
             if (window.innerWidth <= 1024) {
                 document.getElementById('sidebar').classList.remove('open');
+                document.getElementById('sidebar-overlay').classList.remove('active');
             }
         });
     });

@@ -131,6 +131,22 @@ async function getAllMembers()  {try {
     }
 }
 
+async function getMemberById(memberId) {
+    try {
+        const { data, error } = await supabaseInstance
+            .from('members')
+            .select('*')
+            .eq('id', memberId)
+            .single();
+
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error('Error fetching member by ID:', error);
+        return null;
+    }
+}
+
 async function addMember(memberData)  {try {
         const { data, error } = await supabaseInstance
             .from('members')
@@ -391,6 +407,7 @@ window.supabaseClient = {
     loginAdmin,
     logout,
     getAllMembers,
+    getMemberById,
     addMember,
     recordAttendance,
     getTodayAttendance,
