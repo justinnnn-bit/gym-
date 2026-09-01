@@ -1,4 +1,4 @@
-// Vercel Serverless Function to send emails via Brevo (formerly Sendinblue)
+  // Vercel Serverless Function to send emails via Brevo (formerly Sendinblue)
 
 export default async function handler(req, res) {
   // Only allow POST requests
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         sender: {
           name: 'DarkKnight Fitness',
-          email: process.env.FROM_EMAIL || 'noreply@darkknightfitness.com'
+          email: 'noreply@darkknightfitness.com'
         },
         to: [{ email: to, name: memberName }],
         subject: subject,
