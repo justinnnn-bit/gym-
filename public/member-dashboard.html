@@ -205,6 +205,8 @@ yes
             padding: 20px 20px 40px 20px;
             transition: margin-left 0.3s ease;
             max-width: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
         
         .main-content.expanded {
@@ -240,7 +242,6 @@ yes
             font-size: 1.3em;
             transition: all 0.3s;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            display: flex;
             align-items: center;
             justify-content: center;
         }
@@ -919,6 +920,7 @@ yes
             .sidebar {
                 position: fixed;
                 transform: translateX(-100%);
+                z-index: 1000;
             }
             
             .sidebar.open {
@@ -927,10 +929,11 @@ yes
             
             .main-content {
                 grid-column: 1;
+                width: 100%;
             }
             
             .menu-toggle {
-                display: flex;
+                display: flex !important;
             }
         }
         
