@@ -122,8 +122,12 @@ function renderCalendar() {
     
     // Add days of month
     const today = new Date();
+    const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
+    
     for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day);
+        const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+        
         const dayElement = document.createElement('div');
         dayElement.className = 'calendar-day';
         
@@ -135,7 +139,7 @@ function renderCalendar() {
         statusIcon.className = 'status-icon';
         
         // Check if it's today
-        if (date.toDateString() === today.toDateString()) {
+        if (dateStr === todayStr) {
             dayElement.classList.add('today');
         }
         
@@ -148,9 +152,8 @@ function renderCalendar() {
             dayElement.classList.add('closed');
             statusIcon.innerHTML = '<i class="fas fa-door-closed"></i>';
         }
-        // Check attendance status
+        // Check attendance status (only for past and today)
         else {
-            const dateStr = date.toISOString().split('T')[0];
             const hasAttendance = memberAttendance.some(record => {
                 const recordDate = new Date(record.check_time).toISOString().split('T')[0];
                 return recordDate === dateStr && record.action === 'checkin';
@@ -159,7 +162,8 @@ function renderCalendar() {
             if (hasAttendance) {
                 dayElement.classList.add('present');
                 statusIcon.innerHTML = '<i class="fas fa-check"></i>';
-            } else {
+            } else if (dateStr <= todayStr) {
+                // Only mark as absent if date is today or in the past
                 dayElement.classList.add('absent');
                 statusIcon.innerHTML = '<i class="fas fa-times"></i>';
             }
