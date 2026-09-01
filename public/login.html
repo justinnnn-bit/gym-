@@ -188,6 +188,77 @@
     </div>
 
     <script src="login.js"></script>
+
+    <!-- Developer Credit Footer -->
+    <div class="dev-credit">
+        <div class="dev-credit-content">
+            <span class="credit-text">Developed by <strong>Justin Pereira</strong></span>
+            <span class="credit-divider">•</span>
+            <span class="credit-brand">Built by <strong>JP</strong></span>
+        </div>
+    </div>
+
+    <style>
+        .dev-credit {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            z-index: 9999;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .dev-credit-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            color: white;
+            font-size: 13px;
+            letter-spacing: 0.3px;
+        }
+
+        .credit-text, .credit-brand {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            opacity: 0.95;
+        }
+
+        .credit-text strong, .credit-brand strong {
+            font-weight: 700;
+            background: linear-gradient(90deg, #fff 0%, #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .credit-divider {
+            opacity: 0.6;
+            font-size: 16px;
+        }
+
+        .dev-credit:hover .dev-credit-content {
+            transform: translateY(-2px);
+            transition: transform 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .dev-credit {
+                padding: 10px 15px;
+            }
+            .dev-credit-content {
+                font-size: 11px;
+                gap: 8px;
+            }
+        }
+    </style>
 </body>
 </html>
 
