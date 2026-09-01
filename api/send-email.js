@@ -1,7 +1,4 @@
-// Vercel Serverless Function to send emails via Resend
-import { Resend } from 'resend';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Vercel Serverless Function to send emails via Brevo (formerly Sendinblue)
 
 export default async function handler(req, res) {
   // Only allow POST requests
@@ -20,25 +17,46 @@ export default async function handler(req, res) {
     // Generate email HTML based on type
     const emailHTML = generateEmailTemplate(emailType, memberName, data);
 
-    // Send email via Resend
-    const response = await resend.emails.send({
-      from: 'Acme <onboarding@resend.dev>',
-      to: to,
-      subject: subject,
-      html: emailHTML,
+    // Send email via Brevo API
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        sender: {
+          name: 'DarkKnight Fitness',
+          email: process.env.FROM_EMAIL || 'noreply@darkknightfitness.com'
+        },
+        to: [{ email: to, name: memberName }],
+        subject: subject,
+        htmlContent: emailHTML
+      })
     });
 
-    // Log the email (optional - you can store in Supabase)
-    console.log('Email sent:', response);
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error('Brevo API error:', result);
+      return res.status(response.status).json({ 
+        success: false, 
+        error: result.message || 'Failed to send email' 
+      });
+    }
+
+    // Log the email
+    console.log('Email sent via Brevo:', result);
 
     return res.status(200).json({ 
       success: true, 
       message: 'Email sent successfully',
-      id: response.id,
+      messageId: result.messageId,
       debug: {
         to: to,
-        from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
-        hasApiKey: !!process.env.RESEND_API_KEY
+        from: process.env.FROM_EMAIL || 'noreply@darkknightfitness.com',
+        hasApiKey: !!process.env.BREVO_API_KEY
       }
     });
 
