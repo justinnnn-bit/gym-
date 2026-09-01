@@ -101,8 +101,7 @@ function generateEmailTemplate(emailType, memberName, data) {
               <div class="highlight">
                 <strong>Your Account Details:</strong><br>
                 Email: ${data.email}<br>
-                Membership Type: ${data.membershipType}<br>
-                ${data.expiryDate ? `Valid Until: ${new Date(data.expiryDate).toLocaleDateString()}` : ''}
+                Membership Type: ${data.membershipType}
               </div>
 
               <p>You can now:</p>
