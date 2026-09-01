@@ -68,6 +68,7 @@ async function loadAttendance() {
     try {
         const attendance = await window.supabaseClient.getMemberAttendance(memberId);
         memberAttendance = attendance || [];
+        console.log('Loaded attendance records:', memberAttendance);
     } catch (error) {
         console.error('Error loading attendance:', error);
     }
@@ -155,8 +156,12 @@ function renderCalendar() {
         // Check attendance status (only for past and today)
         else {
             const hasAttendance = memberAttendance.some(record => {
-                const recordDate = new Date(record.check_time).toISOString().split('T')[0];
-                return recordDate === dateStr && record.action === 'checkin';
+                const recordDate = new Date(record.check_time);
+                // Compare dates without time component
+                const recordDateStr = recordDate.getFullYear() + '-' + 
+                                     String(recordDate.getMonth() + 1).padStart(2, '0') + '-' + 
+                                     String(recordDate.getDate()).padStart(2, '0');
+                return recordDateStr === dateStr && record.action === 'checkin';
             });
             
             if (hasAttendance) {
