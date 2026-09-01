@@ -161,6 +161,12 @@ function renderCalendar() {
                 const recordDateStr = recordDate.getFullYear() + '-' + 
                                      String(recordDate.getMonth() + 1).padStart(2, '0') + '-' + 
                                      String(recordDate.getDate()).padStart(2, '0');
+                
+                // Debug log for today's date
+                if (dateStr === todayStr) {
+                    console.log('Checking today:', dateStr, 'Record:', recordDateStr, record.action, 'Match:', recordDateStr === dateStr && record.action === 'checkin');
+                }
+                
                 return recordDateStr === dateStr && record.action === 'checkin';
             });
             
