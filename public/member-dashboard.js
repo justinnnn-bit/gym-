@@ -156,15 +156,15 @@ function renderCalendar() {
         // Check attendance status (only for past and today)
         else {
             const hasAttendance = memberAttendance.some(record => {
+                // Parse UTC timestamp and get local date components
                 const recordDate = new Date(record.check_time);
-                // Compare dates without time component
                 const recordDateStr = recordDate.getFullYear() + '-' + 
                                      String(recordDate.getMonth() + 1).padStart(2, '0') + '-' + 
                                      String(recordDate.getDate()).padStart(2, '0');
                 
                 // Debug log for today's date
                 if (dateStr === todayStr) {
-                    console.log('Checking today:', dateStr, 'Record:', recordDateStr, record.action, 'Match:', recordDateStr === dateStr && record.action === 'checkin');
+                    console.log('Checking today:', dateStr, 'Record date:', recordDateStr, 'Action:', record.action, 'Raw:', record.check_time);
                 }
                 
                 return recordDateStr === dateStr && record.action === 'checkin';
