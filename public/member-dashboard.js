@@ -167,9 +167,9 @@ function renderCalendar() {
                                      String(recordDate.getMonth() + 1).padStart(2, '0') + '-' + 
                                      String(recordDate.getDate()).padStart(2, '0');
                 
-                // Debug log for today's date
-                if (dateStr === todayStr) {
-                    console.log('Checking today:', dateStr, 'Record date:', recordDateStr, 'Action:', record.action, 'Raw:', record.check_time);
+                // Debug log for all dates, not just today
+                if (day === 6) {
+                    console.log(`Day ${day}: Comparing ${dateStr} with record ${recordDateStr}, action: ${record.action}, match: ${recordDateStr === dateStr && record.action === 'checkin'}`);
                 }
                 
                 return recordDateStr === dateStr && record.action === 'checkin';
