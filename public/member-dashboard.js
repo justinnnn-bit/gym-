@@ -132,7 +132,9 @@ function renderCalendar() {
     
     for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day);
-        const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+        const dateStr = date.getFullYear() + '-' + 
+                       String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                       String(date.getDate()).padStart(2, '0');
         
         const dayElement = document.createElement('div');
         dayElement.className = 'calendar-day';
