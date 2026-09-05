@@ -123,7 +123,12 @@ function renderCalendar() {
     
     // Add days of month
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
+    // Get today's date in local timezone (not UTC)
+    const todayStr = today.getFullYear() + '-' + 
+                     String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                     String(today.getDate()).padStart(2, '0');
+    
+    console.log('Calendar rendering - Today is:', todayStr);
     
     for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day);
