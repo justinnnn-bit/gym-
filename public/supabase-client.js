@@ -416,19 +416,24 @@ async function getDashboardStats()  {try {
             .select('*', { count: 'exact', head: true })
             .eq('active', true);
 
-        // Get today's check-ins
+        // Get today's date in YYYY-MM-DD format
+        const today = new Date().toISOString().split('T')[0];
+
+        // Get today's check-ins (between 00:00:00 and 23:59:59 today)
         const {count: todayCheckins } = await supabaseInstance
             .from('attendance')
             .select('*', { count: 'exact', head: true })
             .eq('action', 'checkin')
-            .gte('check_time', new Date().toISOString().split('T')[0]);
+            .gte('check_time', `${today}T00:00:00`)
+            .lte('check_time', `${today}T23:59:59`);
 
-        // Get today's check-outs
+        // Get today's check-outs (between 00:00:00 and 23:59:59 today)
         const {count: todayCheckouts } = await supabaseInstance
             .from('attendance')
             .select('*', { count: 'exact', head: true })
             .eq('action', 'checkout')
-            .gte('check_time', new Date().toISOString().split('T')[0]);
+            .gte('check_time', `${today}T00:00:00`)
+            .lte('check_time', `${today}T23:59:59`);
 
         // Calculate currently in gym (check-ins minus check-outs)
         const currentlyInGym = (todayCheckins || 0) - (todayCheckouts || 0);
