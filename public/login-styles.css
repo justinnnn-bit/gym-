@@ -170,12 +170,15 @@ body {
 
 .input-wrapper input {
     width: 100%;
-    padding: 14px 48px 14px 48px; /* Added right padding for eye icon */
+    padding: 14px 52px 14px 48px; /* More right padding for eye icon */
     border: 2px solid var(--border);
     border-radius: 12px;
     font-size: 1em;
     font-family: 'Inter', sans-serif;
     transition: all 0.3s;
+    background: white;
+    position: relative;
+    z-index: 1;
 }
 
 .input-wrapper input:focus {
@@ -189,6 +192,10 @@ body {
     right: 16px;
     cursor: pointer;
     transition: all 0.3s;
+    z-index: 10;
+    pointer-events: all;
+    padding: 8px;
+    font-size: 1.1em;
 }
 
 .toggle-password:hover {
@@ -498,7 +505,7 @@ body {
     }
     
     .input-wrapper input {
-        padding: 12px 42px 12px 42px; /* Added right padding for eye icon on mobile */
+        padding: 12px 46px 12px 42px; /* More right padding for eye icon on mobile */
         font-size: 0.95em;
     }
     
