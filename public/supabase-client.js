@@ -709,3 +709,24 @@ async function updateMemberExpiry(memberId, expiryDate) {
 
 // Export the function
 window.supabaseClient.updateMemberExpiry = updateMemberExpiry;
+
+
+// Update Member Type
+async function updateMembershipType(memberId, membershipType) {
+    try {
+        const { data, error } = await supabaseInstance
+            .from('members')
+            .update({ membership_type: membershipType })
+            .eq('id', memberId);
+
+        if (error) throw error;
+        
+        return { success: true, data };
+    } catch (error) {
+        console.error('Error updating membership type:', error);
+        return { success: false, error: error.message };
+    }
+}
+
+// Export the function
+window.supabaseClient.updateMembershipType = updateMembershipType;

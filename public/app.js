@@ -751,10 +751,17 @@ function displayMembers() {
                             
                             <div class="member-detail-group">
                                 <span class="detail-label">Membership</span>
-                                <span class="membership-badge" style="background: ${membershipColor}; width: fit-content;">
-                                    ${member.membership_type === 'VIP' ? '<i class="fas fa-crown"></i>' : '<i class="fas fa-star"></i>'}
-                                    ${member.membership_type}
-                                </span>
+                                <select 
+                                    class="membership-type-select" 
+                                    id="membership-${member.id}"
+                                    onchange="updateMembershipType('${member.id}')"
+                                    style="background: ${membershipColor};"
+                                >
+                                    <option value="1 Month" ${member.membership_type === '1 Month' ? 'selected' : ''}>📅 1 Month</option>
+                                    <option value="3 Months" ${member.membership_type === '3 Months' ? 'selected' : ''}>📅 3 Months</option>
+                                    <option value="6 Months" ${member.membership_type === '6 Months' ? 'selected' : ''}>✅ 6 Months</option>
+                                    <option value="1 Year" ${member.membership_type === '1 Year' ? 'selected' : ''}>👑 1 Year</option>
+                                </select>
                             </div>
                             
                             <div class="member-detail-group">
@@ -1430,5 +1437,30 @@ async function downloadMemberHistory(memberId, memberName) {
     } catch (error) {
         console.error('Error downloading member history:', error);
         showCustomAlert('Failed to download attendance history.', 'error');
+    }
+}
+
+
+// Update membership type
+async function updateMembershipType(memberId) {
+    const membershipSelect = document.getElementById(`membership-${memberId}`);
+    const newType = membershipSelect.value;
+    
+    if (!newType) {
+        alert('Please select a membership type');
+        return;
+    }
+    
+    try {
+        const result = await window.supabaseClient.updateMembershipType(memberId, newType);
+        if (result.success) {
+            showSuccessMessage('Membership type updated successfully!');
+            await loadMembers();
+        } else {
+            alert('Failed to update membership type: ' + result.error);
+        }
+    } catch (error) {
+        console.error('Error updating membership type:', error);
+        alert('Failed to update membership type');
     }
 }

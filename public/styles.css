@@ -2352,6 +2352,30 @@ body {
     font-size: 12px;
 }
 
+.membership-type-select {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: fit-content;
+}
+
+.membership-type-select:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.membership-type-select option {
+    background: white;
+    color: #1e293b;
+    padding: 10px;
+}
+
 .btn-table-delete {
     padding: 8px 12px;
     border: none;
