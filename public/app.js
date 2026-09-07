@@ -294,6 +294,35 @@ function setupEventListeners() {
     if (printBtn) {
         printBtn.addEventListener('click', printQR);
     }
+    
+    // Stat cards click handlers
+    const statCards = document.querySelectorAll('.stat-card');
+    statCards.forEach((card, index) => {
+        card.addEventListener('click', () => {
+            const navItems = document.querySelectorAll('.nav-item');
+            const pages = document.querySelectorAll('.page');
+            
+            // Remove active from all
+            navItems.forEach(nav => nav.classList.remove('active'));
+            pages.forEach(page => page.classList.remove('active'));
+            
+            // Stop dashboard refresh
+            if (dashboardRefreshInterval) {
+                clearInterval(dashboardRefreshInterval);
+                dashboardRefreshInterval = null;
+            }
+            
+            if (index === 0) {
+                // Total Members card - go to Members page
+                navItems[2].classList.add('active'); // Members nav item
+                document.getElementById('members').classList.add('active');
+            } else {
+                // Present Today and Currently Checked-In - go to Reports page
+                navItems[5].classList.add('active'); // Reports nav item
+                document.getElementById('reports').classList.add('active');
+            }
+        });
+    });
 }
 
 // Main QR Scanner (Always on in Attendance page)
