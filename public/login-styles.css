@@ -194,8 +194,13 @@ body {
     transition: all 0.3s;
     z-index: 10;
     pointer-events: all;
-    padding: 8px;
-    font-size: 1.1em;
+    padding: 4px 8px; /* Smaller padding - less click area */
+    font-size: 1em; /* Smaller icon */
+    width: 32px; /* Fixed width */
+    height: 32px; /* Fixed height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .toggle-password:hover {
@@ -516,6 +521,9 @@ body {
     
     .toggle-password {
         right: 14px;
+        width: 28px; /* Smaller on mobile */
+        height: 28px;
+        font-size: 0.9em;
     }
     
     .form-options {
