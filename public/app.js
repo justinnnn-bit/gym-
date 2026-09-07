@@ -603,8 +603,8 @@ function displayTodayAttendance(attendance) {
         return;
     }
     
-    // Show all records in reverse order (newest first at top, oldest at bottom)
-    const latest = attendance.reverse();
+    // Database already returns newest first (ascending: false), so use as-is
+    const latest = attendance;
     
     container.innerHTML = latest.map(record => {
         const memberName = record.members?.name || 'Unknown';
