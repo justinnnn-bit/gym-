@@ -187,8 +187,15 @@ body {
 .toggle-password {
     position: absolute;
     right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
     cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 1.1em;
+    padding: 8px;
     transition: all 0.3s;
+    z-index: 5;
+    pointer-events: auto;
 }
 
 .toggle-password:hover {
