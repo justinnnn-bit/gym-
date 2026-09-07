@@ -386,16 +386,14 @@ async function getDashboardStats()  {try {
             .eq('action', 'checkout')
             .gte('check_time', new Date().toISOString().split('T')[0]);
 
-        // Get currently in gym
-        const {data: currentlyInGym } = await supabaseInstance
-            .from('currently_in_gym')
-            .select('*');
+        // Calculate currently in gym (check-ins minus check-outs)
+        const currentlyInGym = (todayCheckins || 0) - (todayCheckouts || 0);
 
         return {
             totalMembers: totalMembers || 0,
             todayCheckins: todayCheckins || 0,
             todayCheckouts: todayCheckouts || 0,
-            currentlyInGym: currentlyInGym?.length || 0
+            currentlyInGym: currentlyInGym >= 0 ? currentlyInGym : 0
         };
     } catch (error) {
         console.error('Error fetching dashboard stats:', error);
