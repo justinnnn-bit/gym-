@@ -183,7 +183,51 @@ async function recordAttendance(memberId, action, memberName = null)  {
             name = member?.name;
         }
 
-        // Single insert operation
+        // AUTO-FIX: If checking in today, check if they forgot to check out yesterday
+        if (action === 'checkin') {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayDate = yesterday.toISOString().split('T')[0];
+            
+            // Check if there's a check-in from yesterday without a checkout
+            const { data: yesterdayCheckIn } = await supabaseInstance
+                .from('attendance')
+                .select('id, check_time')
+                .eq('member_id', memberId)
+                .eq('action', 'checkin')
+                .gte('check_time', `${yesterdayDate}T00:00:00`)
+                .lte('check_time', `${yesterdayDate}T23:59:59`)
+                .order('check_time', { ascending: false })
+                .limit(1)
+                .single();
+
+            if (yesterdayCheckIn) {
+                // Check if they already checked out yesterday
+                const { data: yesterdayCheckOut } = await supabaseInstance
+                    .from('attendance')
+                    .select('id')
+                    .eq('member_id', memberId)
+                    .eq('action', 'checkout')
+                    .gte('check_time', yesterdayCheckIn.check_time)
+                    .lte('check_time', `${yesterdayDate}T23:59:59`)
+                    .single();
+
+                // If no checkout found, auto-create one at 10 PM yesterday
+                if (!yesterdayCheckOut) {
+                    console.log(`Auto-checking out ${name} from yesterday at 10 PM`);
+                    await supabaseInstance
+                        .from('attendance')
+                        .insert([{
+                            member_id: memberId,
+                            member_name: name,
+                            action: 'checkout',
+                            check_time: `${yesterdayDate}T22:00:00` // 10 PM yesterday
+                        }]);
+                }
+            }
+        }
+
+        // Record today's attendance (check-in or check-out)
         const {data, error } = await supabaseInstance
             .from('attendance')
             .insert([{

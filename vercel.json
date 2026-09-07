@@ -7,11 +7,5 @@
       "source": "/quick-scan",
       "destination": "/quick-scan.html"
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/auto-checkout",
-      "schedule": "0 0 * * *"
-    }
   ]
 }
