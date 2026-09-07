@@ -416,10 +416,14 @@ async function getDashboardStats()  {try {
             .select('*', { count: 'exact', head: true })
             .eq('active', true);
 
-        // Get today's date in YYYY-MM-DD format
-        const today = new Date().toISOString().split('T')[0];
+        // Get today's date in local timezone YYYY-MM-DD format
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const today = `${year}-${month}-${day}`;
         
-        console.log('Dashboard Stats - Today date:', today);
+        console.log('Dashboard Stats - Today date (local timezone):', today);
         console.log('Dashboard Stats - Querying from:', `${today}T00:00:00`);
         console.log('Dashboard Stats - Querying to:', `${today}T23:59:59`);
 
