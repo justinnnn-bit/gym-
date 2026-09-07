@@ -276,9 +276,10 @@
                 <div class="filter-controls">
                     <select id="membership-filter" class="filter-select">
                         <option value="all">All Memberships</option>
-                        <option value="Basic">Basic</option>
-                        <option value="Premium">Premium</option>
-                        <option value="VIP">VIP</option>
+                        <option value="1 Month">1 Month</option>
+                        <option value="3 Months">3 Months</option>
+                        <option value="6 Months">6 Months</option>
+                        <option value="1 Year">1 Year</option>
                     </select>
                     <select id="status-filter" class="filter-select">
                         <option value="all">All Status</option>
@@ -418,10 +419,11 @@
                     <div class="form-group">
                         <label>Membership Type</label>
                         <select id="member-type" required>
-                            <option value="">Select Type</option>
-                            <option value="Basic">Basic</option>
-                            <option value="Premium">Premium</option>
-                            <option value="VIP">VIP</option>
+                            <option value="">Select Duration</option>
+                            <option value="1 Month">1 Month</option>
+                            <option value="3 Months">3 Months</option>
+                            <option value="6 Months">6 Months</option>
+                            <option value="1 Year">1 Year</option>
                         </select>
                     </div>
                 </div>
@@ -514,28 +516,34 @@
             </div>
             <div class="modal-body-custom">
                 <p id="approval-member-name">Approve <strong></strong>?</p>
-                <p class="modal-subtitle">Select membership type:</p>
+                <p class="modal-subtitle">Select membership duration:</p>
                 <div class="membership-options">
                     <label class="membership-option">
-                        <input type="radio" name="membership-type" value="Basic" checked>
+                        <input type="radio" name="membership-type" value="1 Month" checked>
                         <span class="option-card">
-                            <i class="fas fa-star"></i>
-                            <strong>Basic</strong>
+                            <i class="fas fa-calendar"></i>
+                            <strong>1 Month</strong>
                         </span>
                     </label>
                     <label class="membership-option">
-                        <input type="radio" name="membership-type" value="Premium">
+                        <input type="radio" name="membership-type" value="3 Months">
                         <span class="option-card">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <strong>Premium</strong>
+                            <i class="fas fa-calendar-alt"></i>
+                            <strong>3 Months</strong>
                         </span>
                     </label>
                     <label class="membership-option">
-                        <input type="radio" name="membership-type" value="VIP">
+                        <input type="radio" name="membership-type" value="6 Months">
+                        <span class="option-card">
+                            <i class="fas fa-calendar-check"></i>
+                            <strong>6 Months</strong>
+                        </span>
+                    </label>
+                    <label class="membership-option">
+                        <input type="radio" name="membership-type" value="1 Year">
                         <span class="option-card">
                             <i class="fas fa-crown"></i>
-                            <strong>VIP</strong>
+                            <strong>1 Year</strong>
                         </span>
                     </label>
                 </div>
