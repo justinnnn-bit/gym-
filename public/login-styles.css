@@ -159,7 +159,6 @@ body {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 8px; /* Space between input and eye icon */
 }
 
 .input-wrapper i {
@@ -171,15 +170,12 @@ body {
 
 .input-wrapper input {
     width: 100%;
-    padding: 14px 18px 14px 48px; /* Back to normal right padding */
+    padding: 14px 45px 14px 48px; /* Slightly more right padding */
     border: 2px solid var(--border);
     border-radius: 12px;
     font-size: 1em;
     font-family: 'Inter', sans-serif;
     transition: all 0.3s;
-    background: white;
-    position: relative;
-    z-index: 1;
 }
 
 .input-wrapper input:focus {
@@ -189,15 +185,10 @@ body {
 }
 
 .toggle-password {
-    position: relative; /* Changed from absolute */
-    right: 0; /* Reset positioning */
+    position: absolute;
+    right: 16px;
     cursor: pointer;
     transition: all 0.3s;
-    color: var(--text-secondary);
-    font-size: 1.2em;
-    padding: 8px 12px; /* Bigger click area */
-    margin-left: -40px; /* Overlap into input padding */
-    z-index: 10;
 }
 
 .toggle-password:hover {
@@ -507,7 +498,7 @@ body {
     }
     
     .input-wrapper input {
-        padding: 12px 16px 12px 42px; /* Normal right padding on mobile */
+        padding: 12px 16px 12px 42px;
         font-size: 0.95em;
     }
     
@@ -517,8 +508,7 @@ body {
     }
     
     .toggle-password {
-        font-size: 1em;
-        margin-left: -36px;
+        right: 14px;
     }
     
     .form-options {
