@@ -196,9 +196,9 @@ body {
     pointer-events: all;
     padding: 4px 8px; /* Smaller padding - less click area */
     font-size: 1em; /* Smaller icon */
-    width: 32px; /* Fixed width */
-    height: 32px; /* Fixed height */
-    display: flex;
+    width: auto; /* Let icon size naturally */
+    height: auto; /* Let icon size naturally */
+    display: inline-flex; /* Changed from flex */
     align-items: center;
     justify-content: center;
 }
@@ -521,8 +521,8 @@ body {
     
     .toggle-password {
         right: 14px;
-        width: 28px; /* Smaller on mobile */
-        height: 28px;
+        width: auto; /* Let icon size naturally on mobile */
+        height: auto;
         font-size: 0.9em;
     }
     
