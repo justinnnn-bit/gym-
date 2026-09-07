@@ -246,18 +246,19 @@ async function recordAttendance(memberId, action, memberName = null)  {
 }
 
 async function getTodayAttendance()  {try {
-        // Get today's date in local timezone YYYY-MM-DD format
+        // Get today's date range in UTC
         const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const today = `${year}-${month}-${day}`;
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+        const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+        
+        const todayStartUTC = todayStart.toISOString();
+        const todayEndUTC = todayEnd.toISOString();
         
         const { data, error } = await supabaseInstance
             .from('attendance')
             .select('*, members(name)')
-            .gte('check_time', `${today}T00:00:00`)
-            .lte('check_time', `${today}T23:59:59`)
+            .gte('check_time', todayStartUTC)
+            .lte('check_time', todayEndUTC)
             .order('check_time', { ascending: false });
 
         if (error) throw error;
@@ -421,34 +422,35 @@ async function getDashboardStats()  {try {
             .select('*', { count: 'exact', head: true })
             .eq('active', true);
 
-        // Get today's date in local timezone YYYY-MM-DD format
+        // Get today's date range in UTC (Supabase stores timestamps in UTC)
         const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const today = `${year}-${month}-${day}`;
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+        const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
         
-        console.log('Dashboard Stats - Today date (local timezone):', today);
-        console.log('Dashboard Stats - Querying from:', `${today}T00:00:00`);
-        console.log('Dashboard Stats - Querying to:', `${today}T23:59:59`);
+        const todayStartUTC = todayStart.toISOString();
+        const todayEndUTC = todayEnd.toISOString();
+        
+        console.log('Dashboard Stats - Today date (local timezone):', now.toLocaleDateString());
+        console.log('Dashboard Stats - Querying from (UTC):', todayStartUTC);
+        console.log('Dashboard Stats - Querying to (UTC):', todayEndUTC);
 
-        // Get today's check-ins (between 00:00:00 and 23:59:59 today)
+        // Get today's check-ins
         const {count: todayCheckins } = await supabaseInstance
             .from('attendance')
             .select('*', { count: 'exact', head: true })
             .eq('action', 'checkin')
-            .gte('check_time', `${today}T00:00:00`)
-            .lte('check_time', `${today}T23:59:59`);
+            .gte('check_time', todayStartUTC)
+            .lte('check_time', todayEndUTC);
 
         console.log('Dashboard Stats - Today check-ins count:', todayCheckins);
 
-        // Get today's check-outs (between 00:00:00 and 23:59:59 today)
+        // Get today's check-outs
         const {count: todayCheckouts } = await supabaseInstance
             .from('attendance')
             .select('*', { count: 'exact', head: true })
             .eq('action', 'checkout')
-            .gte('check_time', `${today}T00:00:00`)
-            .lte('check_time', `${today}T23:59:59`);
+            .gte('check_time', todayStartUTC)
+            .lte('check_time', todayEndUTC);
 
         console.log('Dashboard Stats - Today check-outs count:', todayCheckouts);
 
