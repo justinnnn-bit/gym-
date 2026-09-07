@@ -166,6 +166,24 @@ body {
     left: 16px;
     color: var(--text-secondary);
     font-size: 1.1em;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.input-wrapper i.toggle-password {
+    left: auto;
+    right: 16px;
+    pointer-events: auto;
+    cursor: pointer;
+    padding: 8px;
+    font-size: 1.1em;
+    color: var(--text-secondary);
+    z-index: 10;
+}
+
+.input-wrapper i.toggle-password:hover {
+    color: var(--primary);
 }
 
 .input-wrapper input {
@@ -182,24 +200,6 @@ body {
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-}
-
-.toggle-password {
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: var(--text-secondary);
-    font-size: 1.1em;
-    padding: 8px;
-    transition: all 0.3s;
-    z-index: 5;
-    pointer-events: auto;
-}
-
-.toggle-password:hover {
-    color: var(--primary);
 }
 
 .input-hint {
