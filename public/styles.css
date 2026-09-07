@@ -99,8 +99,7 @@ body {
 .notification-badge {
     position: absolute;
     right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: 15px;
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     color: white;
     font-size: 10px;
