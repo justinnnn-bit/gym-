@@ -1333,6 +1333,7 @@ function showConfirmModal(message, onConfirm) {
 function closeCustomModal(modalId) {
     const modal = document.getElementById(modalId);
     modal.classList.remove('show');
+    modal.style.display = 'none';
 }
 
 // Check authentication on page load
