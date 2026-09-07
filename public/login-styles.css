@@ -170,7 +170,7 @@ body {
 
 .input-wrapper input {
     width: 100%;
-    padding: 14px 18px 14px 48px;
+    padding: 14px 48px 14px 48px; /* Added right padding for eye icon */
     border: 2px solid var(--border);
     border-radius: 12px;
     font-size: 1em;
@@ -498,7 +498,7 @@ body {
     }
     
     .input-wrapper input {
-        padding: 12px 16px 12px 42px;
+        padding: 12px 42px 12px 42px; /* Added right padding for eye icon on mobile */
         font-size: 0.95em;
     }
     
