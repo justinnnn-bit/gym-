@@ -320,6 +320,7 @@ function setupEventListeners() {
                 // Present Today and Currently Checked-In - go to Reports page
                 navItems[5].classList.add('active'); // Reports nav item
                 document.getElementById('reports').classList.add('active');
+                loadReports(); // Load the reports data
             }
         });
     });
