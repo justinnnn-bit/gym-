@@ -418,6 +418,10 @@ async function getDashboardStats()  {try {
 
         // Get today's date in YYYY-MM-DD format
         const today = new Date().toISOString().split('T')[0];
+        
+        console.log('Dashboard Stats - Today date:', today);
+        console.log('Dashboard Stats - Querying from:', `${today}T00:00:00`);
+        console.log('Dashboard Stats - Querying to:', `${today}T23:59:59`);
 
         // Get today's check-ins (between 00:00:00 and 23:59:59 today)
         const {count: todayCheckins } = await supabaseInstance
@@ -427,6 +431,8 @@ async function getDashboardStats()  {try {
             .gte('check_time', `${today}T00:00:00`)
             .lte('check_time', `${today}T23:59:59`);
 
+        console.log('Dashboard Stats - Today check-ins count:', todayCheckins);
+
         // Get today's check-outs (between 00:00:00 and 23:59:59 today)
         const {count: todayCheckouts } = await supabaseInstance
             .from('attendance')
@@ -434,6 +440,8 @@ async function getDashboardStats()  {try {
             .eq('action', 'checkout')
             .gte('check_time', `${today}T00:00:00`)
             .lte('check_time', `${today}T23:59:59`);
+
+        console.log('Dashboard Stats - Today check-outs count:', todayCheckouts);
 
         // Calculate currently in gym (check-ins minus check-outs)
         const currentlyInGym = (todayCheckins || 0) - (todayCheckouts || 0);
