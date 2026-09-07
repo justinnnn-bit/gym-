@@ -1464,3 +1464,51 @@ async function updateMembershipType(memberId) {
         alert('Failed to update membership type');
     }
 }
+
+
+// Show currently in gym modal
+async function showCurrentlyInGymModal() {
+    const modal = document.getElementById('currently-in-gym-modal');
+    modal.style.display = 'flex';
+    modal.classList.add('show');
+    
+    // Fetch currently in gym members
+    const members = await window.supabaseClient.getCurrentlyInGym();
+    
+    const container = document.getElementById('currently-in-gym-list');
+    
+    if (members.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #94A3B8;">
+                <i class="fas fa-users" style="font-size: 3em; margin-bottom: 16px; display: block; opacity: 0.5;"></i>
+                <p>No one is currently in the gym</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = `
+        <div class="currently-in-gym-grid">
+            ${members.map(member => {
+                const initial = member.name.charAt(0).toUpperCase();
+                const checkInTime = member.checkInTime.toLocaleTimeString('en-US', {
+                    hour: 'numeric',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                
+                return `
+                    <div class="gym-member-item">
+                        <div class="gym-member-avatar">${initial}</div>
+                        <div class="gym-member-info">
+                            <div class="gym-member-name">${member.name}</div>
+                            <div class="gym-member-time">
+                                <i class="fas fa-clock"></i> Checked in at ${checkInTime}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}

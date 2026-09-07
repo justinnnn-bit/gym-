@@ -366,9 +366,10 @@
                         <h4>Total Check-Outs Today</h4>
                         <div class="report-value orange" id="report-checkouts">0</div>
                     </div>
-                    <div class="report-card">
+                    <div class="report-card clickable-card" onclick="showCurrentlyInGymModal()">
                         <h4>Currently In Gym</h4>
                         <div class="report-value blue" id="report-current">0</div>
+                        <div class="card-hint">Click to view</div>
                     </div>
                 </div>
 
@@ -503,6 +504,24 @@
             }
         }
     </style>
+
+    <!-- Currently In Gym Modal -->
+    <div id="currently-in-gym-modal" class="modal">
+        <div class="modal-content custom-modal">
+            <div class="modal-header-custom">
+                <h2><i class="fas fa-users"></i> Currently In Gym</h2>
+                <button class="close-modal" onclick="closeCustomModal('currently-in-gym-modal')">&times;</button>
+            </div>
+            <div class="modal-body-custom">
+                <div id="currently-in-gym-list">
+                    <div style="text-align: center; padding: 20px; color: #94A3B8;">
+                        Loading...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
 

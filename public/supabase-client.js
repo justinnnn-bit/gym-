@@ -732,3 +732,54 @@ async function updateMembershipType(memberId, membershipType) {
 
 // Export the function
 window.supabaseClient.updateMembershipType = updateMembershipType;
+
+
+// Get currently checked-in members (checked in but not checked out today)
+async function getCurrentlyInGym() {
+    try {
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+        const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+        
+        const todayStartUTC = todayStart.toISOString();
+        const todayEndUTC = todayEnd.toISOString();
+
+        // Get all today's check-ins
+        const { data: checkIns, error: checkInError } = await supabaseInstance
+            .from('attendance')
+            .select('member_id, members(name), check_time')
+            .eq('action', 'checkin')
+            .gte('check_time', todayStartUTC)
+            .lte('check_time', todayEndUTC);
+
+        if (checkInError) throw checkInError;
+
+        // Get all today's check-outs
+        const { data: checkOuts, error: checkOutError } = await supabaseInstance
+            .from('attendance')
+            .select('member_id')
+            .eq('action', 'checkout')
+            .gte('check_time', todayStartUTC)
+            .lte('check_time', todayEndUTC);
+
+        if (checkOutError) throw checkOutError;
+
+        // Get member IDs who checked out
+        const checkedOutIds = new Set(checkOuts.map(co => co.member_id));
+
+        // Filter to only members who checked in but haven't checked out
+        const currentlyIn = checkIns.filter(ci => !checkedOutIds.has(ci.member_id));
+
+        return currentlyIn.map(ci => ({
+            memberId: ci.member_id,
+            name: ci.members?.name || 'Unknown',
+            checkInTime: new Date(ci.check_time)
+        }));
+    } catch (error) {
+        console.error('Error fetching currently in gym:', error);
+        return [];
+    }
+}
+
+// Export the function
+window.supabaseClient.getCurrentlyInGym = getCurrentlyInGym;
