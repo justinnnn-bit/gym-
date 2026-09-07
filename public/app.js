@@ -603,8 +603,8 @@ function displayTodayAttendance(attendance) {
         return;
     }
     
-    // Show all records in reverse order (newest first)
-    const latest = attendance.reverse();
+    // Show all records in chronological order (oldest first, newest last)
+    const latest = attendance;
     
     container.innerHTML = latest.map(record => {
         const memberName = record.members?.name || 'Unknown';
@@ -629,6 +629,11 @@ function displayTodayAttendance(attendance) {
             </div>
         `;
     }).join('');
+    
+    // Auto-scroll to bottom to show the newest records
+    setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+    }, 100);
 }
 
 // Load Members
