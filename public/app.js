@@ -1,6 +1,7 @@
 // Global variables
 let html5QrCode;
 let currentMembers = [];
+let dashboardRefreshInterval = null; // Track dashboard refresh timer
 // QR codes are URLs that auto-record attendance for logged-in member
 const CHECKIN_QR_TEXT = "https://darkknightfitness.vercel.app/quick-scan?action=checkin";
 const CHECKOUT_QR_TEXT = "https://darkknightfitness.vercel.app/quick-scan?action=checkout";
@@ -79,9 +80,24 @@ function initializeNavigation() {
                 stopMainQRScanner();
             }
             
+            // Stop dashboard refresh if leaving dashboard
+            if (dashboardRefreshInterval && targetPage !== 'dashboard') {
+                clearInterval(dashboardRefreshInterval);
+                dashboardRefreshInterval = null;
+            }
+            
             // Start scanner if entering attendance page
             if (targetPage === 'attendance') {
                 setTimeout(() => startMainQRScanner(), 300);
+            }
+            
+            // Start dashboard refresh if entering dashboard
+            if (targetPage === 'dashboard') {
+                loadDashboard();
+                // Refresh every 10 seconds
+                dashboardRefreshInterval = setInterval(() => {
+                    loadDashboard();
+                }, 10000);
             }
             
             // Load page data
