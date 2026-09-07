@@ -394,6 +394,31 @@ body {
     overflow-x: auto;
 }
 
+#today-attendance-list {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Custom scrollbar styling */
+#today-attendance-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+#today-attendance-list::-webkit-scrollbar-track {
+    background: var(--bg-light);
+    border-radius: 4px;
+}
+
+#today-attendance-list::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+#today-attendance-list::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
 .table-header {
     display: grid;
     grid-template-columns: 2fr 1.2fr 1.2fr 1.2fr 1fr;

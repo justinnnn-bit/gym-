@@ -603,8 +603,8 @@ function displayTodayAttendance(attendance) {
         return;
     }
     
-    // Show latest 5 records
-    const latest = attendance.slice(-5).reverse();
+    // Show all records in reverse order (newest first)
+    const latest = attendance.reverse();
     
     container.innerHTML = latest.map(record => {
         const memberName = record.members?.name || 'Unknown';
