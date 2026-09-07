@@ -12,58 +12,57 @@ export default async function handler(req, res) {
     }
 
     try {
-        console.log('Running auto-checkout for members checked in 4+ hours...');
+        console.log('Running midnight auto-checkout for members still checked in...');
 
-        // Calculate 4 hours ago
-        const fourHoursAgo = new Date();
-        fourHoursAgo.setHours(fourHoursAgo.getHours() - 4);
+        // Get yesterday's date (since we run at midnight, we check out yesterday's members)
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayDate = yesterday.toISOString().split('T')[0];
 
-        // Get today's date for filtering
-        const today = new Date().toISOString().split('T')[0];
-
-        // Find all check-ins from today that are older than 4 hours
-        const { data: oldCheckIns, error: fetchError } = await supabase
+        // Find all check-ins from yesterday
+        const { data: yesterdayCheckIns, error: fetchError } = await supabase
             .from('attendance')
             .select('member_id, check_time')
             .eq('action', 'checkin')
-            .gte('check_time', `${today}T00:00:00`)
-            .lte('check_time', fourHoursAgo.toISOString());
+            .gte('check_time', `${yesterdayDate}T00:00:00`)
+            .lte('check_time', `${yesterdayDate}T23:59:59`);
 
         if (fetchError) {
             console.error('Error fetching check-ins:', fetchError);
             return res.status(500).json({ error: 'Failed to fetch check-ins' });
         }
 
-        if (!oldCheckIns || oldCheckIns.length === 0) {
-            console.log('No members need auto-checkout');
+        if (!yesterdayCheckIns || yesterdayCheckIns.length === 0) {
+            console.log('No check-ins from yesterday');
             return res.status(200).json({ 
                 success: true, 
-                message: 'No members need auto-checkout',
+                message: 'No check-ins from yesterday',
                 checkedOut: 0 
             });
         }
 
-        console.log(`Found ${oldCheckIns.length} check-ins older than 4 hours`);
+        console.log(`Found ${yesterdayCheckIns.length} check-ins from yesterday`);
 
-        // For each old check-in, check if they already checked out
+        // For each check-in, check if they already checked out
         const membersToCheckout = [];
         
-        for (const checkIn of oldCheckIns) {
-            // Check if this member already has a checkout record today
+        for (const checkIn of yesterdayCheckIns) {
+            // Check if this member already has a checkout record from yesterday
             const { data: existingCheckout } = await supabase
                 .from('attendance')
                 .select('id')
                 .eq('member_id', checkIn.member_id)
                 .eq('action', 'checkout')
                 .gte('check_time', checkIn.check_time)
+                .lte('check_time', `${yesterdayDate}T23:59:59`)
                 .single();
 
-            // If no checkout exists, add to list
+            // If no checkout exists, add to list (checkout at 11:59 PM yesterday)
             if (!existingCheckout) {
                 membersToCheckout.push({
                     member_id: checkIn.member_id,
                     action: 'checkout',
-                    check_time: new Date().toISOString()
+                    check_time: `${yesterdayDate}T23:59:00` // 11:59 PM yesterday
                 });
             }
         }
@@ -77,7 +76,7 @@ export default async function handler(req, res) {
             });
         }
 
-        console.log(`Auto-checking out ${membersToCheckout.length} members`);
+        console.log(`Auto-checking out ${membersToCheckout.length} members at 11:59 PM`);
 
         // Insert auto-checkout records
         const { error: insertError } = await supabase
@@ -93,7 +92,7 @@ export default async function handler(req, res) {
 
         return res.status(200).json({
             success: true,
-            message: `Auto-checked out ${membersToCheckout.length} members`,
+            message: `Auto-checked out ${membersToCheckout.length} members at midnight`,
             checkedOut: membersToCheckout.length,
             members: membersToCheckout.map(m => m.member_id)
         });
