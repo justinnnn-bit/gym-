@@ -159,6 +159,7 @@ body {
     position: relative;
     display: flex;
     align-items: center;
+    gap: 8px; /* Space between input and eye icon */
 }
 
 .input-wrapper i {
@@ -170,7 +171,7 @@ body {
 
 .input-wrapper input {
     width: 100%;
-    padding: 14px 52px 14px 48px; /* More right padding for eye icon */
+    padding: 14px 18px 14px 48px; /* Back to normal right padding */
     border: 2px solid var(--border);
     border-radius: 12px;
     font-size: 1em;
@@ -188,19 +189,15 @@ body {
 }
 
 .toggle-password {
-    position: absolute;
-    right: 16px;
+    position: relative; /* Changed from absolute */
+    right: 0; /* Reset positioning */
     cursor: pointer;
     transition: all 0.3s;
+    color: var(--text-secondary);
+    font-size: 1.2em;
+    padding: 8px 12px; /* Bigger click area */
+    margin-left: -40px; /* Overlap into input padding */
     z-index: 10;
-    pointer-events: all;
-    padding: 4px 8px; /* Smaller padding - less click area */
-    font-size: 1em; /* Smaller icon */
-    width: auto; /* Let icon size naturally */
-    height: auto; /* Let icon size naturally */
-    display: inline-flex; /* Changed from flex */
-    align-items: center;
-    justify-content: center;
 }
 
 .toggle-password:hover {
@@ -510,7 +507,7 @@ body {
     }
     
     .input-wrapper input {
-        padding: 12px 46px 12px 42px; /* More right padding for eye icon on mobile */
+        padding: 12px 16px 12px 42px; /* Normal right padding on mobile */
         font-size: 0.95em;
     }
     
@@ -520,10 +517,8 @@ body {
     }
     
     .toggle-password {
-        right: 14px;
-        width: auto; /* Let icon size naturally on mobile */
-        height: auto;
-        font-size: 0.9em;
+        font-size: 1em;
+        margin-left: -36px;
     }
     
     .form-options {
