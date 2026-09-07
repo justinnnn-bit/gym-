@@ -168,25 +168,33 @@ async function addMember(memberData)  {try {
 
 // ========== ATTENDANCE ==========
 
-async function recordAttendance(memberId, action)  {try {
-        // Get member name
-        const { data: member } = await supabaseInstance
-            .from('members')
-            .select('name')
-            .eq('id', memberId)
-            .single();
+async function recordAttendance(memberId, action, memberName = null)  {
+    try {
+        // If memberName is provided (from cache), use it directly
+        // Otherwise fetch it (fallback)
+        let name = memberName;
+        
+        if (!name) {
+            const { data: member } = await supabaseInstance
+                .from('members')
+                .select('name')
+                .eq('id', memberId)
+                .single();
+            name = member?.name;
+        }
 
+        // Single insert operation
         const {data, error } = await supabaseInstance
             .from('attendance')
             .insert([{
                 member_id: memberId,
-                member_name: member.name,
+                member_name: name,
                 action: action
             }])
             .select();
 
         if (error) throw error;
-        return { success: true, attendance: data[0], member: member };
+        return { success: true, attendance: data[0], member: { name } };
     } catch (error) {
         console.error('Error recording attendance:', error);
         return { success: false, error: error.message };

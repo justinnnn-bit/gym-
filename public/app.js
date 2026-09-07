@@ -449,8 +449,14 @@ function selectMemberForAttendance(memberId, memberName) {
 // Process attendance
 async function processAttendance(memberId, memberName) {
     try {
-        // Use Supabase client
-        const result = await window.supabaseClient.recordAttendance(memberId, currentAction);
+        // Show loading indicator
+        showLoadingIndicator();
+        
+        // Use Supabase client - pass memberName to avoid extra query
+        const result = await window.supabaseClient.recordAttendance(memberId, currentAction, memberName);
+        
+        // Hide loading indicator
+        hideLoadingIndicator();
         
         if (result.success) {
             showSuccessModal(result.member, result.attendance);
@@ -475,6 +481,52 @@ async function processAttendance(memberId, memberName) {
         if (html5QrCode) {
             html5QrCode.resume();
         }
+    }
+}
+
+// Show loading indicator
+function showLoadingIndicator() {
+    const modal = document.getElementById('member-selection-modal');
+    if (modal) {
+        // Add loading overlay to modal
+        const loadingOverlay = document.createElement('div');
+        loadingOverlay.id = 'loading-overlay';
+        loadingOverlay.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            border-radius: 24px;
+        `;
+        loadingOverlay.innerHTML = `
+            <div style="text-align: center;">
+                <div style="width: 60px; height: 60px; border: 4px solid #E5E7EB; border-top: 4px solid #667eea; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 20px;"></div>
+                <p style="color: #667eea; font-weight: 600; font-size: 1.1em;">Processing...</p>
+                <p style="color: #64748b; font-size: 0.9em; margin-top: 8px;">Recording attendance</p>
+            </div>
+            <style>
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            </style>
+        `;
+        modal.querySelector('.modal-content').appendChild(loadingOverlay);
+    }
+}
+
+// Hide loading indicator
+function hideLoadingIndicator() {
+    const loadingOverlay = document.getElementById('loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.remove();
     }
 }
 
