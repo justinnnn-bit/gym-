@@ -2095,7 +2095,7 @@ body {
 .membership-options {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 14px;
     margin-top: 20px;
 }
 
@@ -2112,48 +2112,74 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
-    padding: 20px 12px;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    background: #fafafa;
+    justify-content: center;
+    gap: 10px;
+    padding: 24px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(145deg, #ffffff 0%, #f9fafb 100%);
     position: relative;
+    min-height: 110px;
+}
+
+.option-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    padding: 2px;
+    background: linear-gradient(145deg, transparent, transparent);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s;
 }
 
 .option-card:hover {
-    background: #f8f9fa;
-    border-color: #c7d2fe;
-    transform: translateY(-2px);
+    background: linear-gradient(145deg, #ffffff 0%, #f3f4f6 100%);
+    border-color: #d1d5db;
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .option-card i {
-    color: #94a3b8;
-    font-size: 28px;
-    transition: all 0.25s;
+    color: #9ca3af;
+    font-size: 36px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .membership-option input[type="radio"]:checked + .option-card {
-    border-color: #667eea;
-    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.25);
+    border-color: #818cf8;
+    background: linear-gradient(145deg, #eef2ff 0%, #e0e7ff 100%);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 12px 32px rgba(129, 140, 248, 0.35), 0 0 0 1px rgba(129, 140, 248, 0.1) inset;
+}
+
+.membership-option input[type="radio"]:checked + .option-card::before {
+    background: linear-gradient(145deg, #818cf8, #6366f1);
+    opacity: 1;
 }
 
 .membership-option input[type="radio"]:checked + .option-card i {
-    color: #667eea;
-    transform: scale(1.1);
+    color: #6366f1;
+    transform: scale(1.15);
+    filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.3));
 }
 
 .option-card strong {
-    font-size: 14px;
-    color: #334155;
+    font-size: 15px;
+    color: #374151;
     font-weight: 600;
-    transition: all 0.25s;
+    transition: all 0.3s;
+    letter-spacing: -0.01em;
 }
 
 .membership-option input[type="radio"]:checked + .option-card strong {
-    color: #667eea;
+    color: #4f46e5;
+    font-weight: 700;
 }
 
 .modal-footer-custom {
