@@ -185,6 +185,41 @@ async function recordAttendance(memberId, action, memberName = null)  {
 
         // AUTO-FIX: If checking in today, check if they forgot to check out yesterday
         if (action === 'checkin') {
+            // FIRST: Check if already checked in TODAY
+            const now = new Date();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+            const todayStartUTC = todayStart.toISOString();
+            
+            const { data: todayCheckIn } = await supabaseInstance
+                .from('attendance')
+                .select('id, check_time')
+                .eq('member_id', memberId)
+                .eq('action', 'checkin')
+                .gte('check_time', todayStartUTC)
+                .order('check_time', { ascending: false })
+                .limit(1)
+                .single();
+
+            if (todayCheckIn) {
+                // Check if they already checked out today
+                const { data: todayCheckOut } = await supabaseInstance
+                    .from('attendance')
+                    .select('id')
+                    .eq('member_id', memberId)
+                    .eq('action', 'checkout')
+                    .gte('check_time', todayCheckIn.check_time)
+                    .single();
+
+                // If no checkout found, prevent duplicate check-in
+                if (!todayCheckOut) {
+                    return { 
+                        success: false, 
+                        error: 'Already checked in! Please check out first.' 
+                    };
+                }
+            }
+
+            // SECOND: Check yesterday's attendance for auto-fix
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
             const yesterdayDate = yesterday.toISOString().split('T')[0];
