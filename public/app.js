@@ -961,7 +961,10 @@ async function loadReports() {
         
         const todayCheckins = todayAttendance.filter(a => a.action === 'checkin').length;
         const todayCheckouts = todayAttendance.filter(a => a.action === 'checkout').length;
-        const currentlyIn = todayCheckins - todayCheckouts;
+        
+        // Get currently in gym using proper function
+        const currentlyInGymData = await window.supabaseClient.getCurrentlyInGym();
+        const currentlyIn = currentlyInGymData.length;
         
         document.getElementById('report-checkins').textContent = todayCheckins;
         document.getElementById('report-checkouts').textContent = todayCheckouts;
