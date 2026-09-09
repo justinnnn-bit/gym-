@@ -489,14 +489,15 @@ async function getDashboardStats()  {try {
 
         console.log('Dashboard Stats - Today check-outs count:', todayCheckouts);
 
-        // Calculate currently in gym (check-ins minus check-outs)
-        const currentlyInGym = (todayCheckins || 0) - (todayCheckouts || 0);
+        // Get currently in gym (proper calculation using actual data)
+        const currentlyInGymData = await getCurrentlyInGym();
+        const currentlyInGym = currentlyInGymData.length;
 
         return {
             totalMembers: totalMembers || 0,
             todayCheckins: todayCheckins || 0,
             todayCheckouts: todayCheckouts || 0,
-            currentlyInGym: currentlyInGym >= 0 ? currentlyInGym : 0
+            currentlyInGym: currentlyInGym
         };
     } catch (error) {
         console.error('Error fetching dashboard stats:', error);
